@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Map, MessageSquare, Clock, Brain } from 'lucide-react';
+import { Map, MessageSquare, Clock, Brain, Columns3 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { CronJob } from '@/lib/types';
 
@@ -20,6 +20,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Map', icon: Map, badge: 'agents' },
+  { href: '/kanban', label: 'Kanban', icon: Columns3 },
   { href: '/chat', label: 'Messages', icon: MessageSquare, badge: 'unread' },
   { href: '/crons', label: 'Crons', icon: Clock, badge: 'errors' },
   { href: '/memory', label: 'Memory', icon: Brain },

@@ -1,0 +1,180 @@
+'use client'
+
+import { useState } from 'react'
+import type { Agent } from '@/lib/types'
+import {
+  KanbanTicket,
+  PRIORITY_COLORS,
+  ROLE_LABELS,
+} from '@/lib/kanban/types'
+
+interface TicketCardProps {
+  ticket: KanbanTicket
+  agent: Agent | null
+  onClick: () => void
+  isWorking?: boolean
+}
+
+export function TicketCard({ ticket, agent, onClick, isWorking }: TicketCardProps) {
+  const [isDragging, setIsDragging] = useState(false)
+
+  function handleDragStart(e: React.DragEvent<HTMLDivElement>) {
+    e.dataTransfer.setData('text/plain', ticket.id)
+    e.dataTransfer.effectAllowed = 'move'
+    setIsDragging(true)
+  }
+
+  function handleDragEnd() {
+    setIsDragging(false)
+  }
+
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onClick={onClick}
+      className="hover-lift focus-ring"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      style={{
+        background: 'var(--material-regular)',
+        borderRadius: 'var(--radius-md)',
+        padding: 'var(--space-3)',
+        cursor: isDragging ? 'grabbing' : 'grab',
+        opacity: isDragging ? 0.6 : 1,
+        border: '1px solid var(--separator)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-2)',
+        userSelect: 'none',
+        transition: 'opacity 150ms var(--ease-smooth)',
+      }}
+    >
+      {/* Priority dot + Title */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 'var(--space-2)',
+        }}
+      >
+        <span
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: PRIORITY_COLORS[ticket.priority],
+            flexShrink: 0,
+            marginTop: 5,
+          }}
+          title={`${ticket.priority} priority`}
+        />
+        <span
+          style={{
+            fontSize: 'var(--text-footnote)',
+            fontWeight: 'var(--weight-medium)',
+            color: 'var(--text-primary)',
+            lineHeight: 1.3,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            wordBreak: 'break-word',
+          }}
+        >
+          {ticket.title}
+        </span>
+      </div>
+
+      {/* Bottom row: role badge + assignee */}
+      {(ticket.assigneeRole || agent) && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            flexWrap: 'wrap',
+          }}
+        >
+          {ticket.assigneeRole && (
+            <span
+              style={{
+                fontSize: 'var(--text-caption2)',
+                fontWeight: 'var(--weight-medium)',
+                color: 'var(--text-secondary)',
+                background: 'var(--fill-tertiary)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '1px var(--space-2)',
+                lineHeight: 1.5,
+              }}
+            >
+              {ROLE_LABELS[ticket.assigneeRole]}
+            </span>
+          )}
+
+          {agent && (
+            <span
+              style={{
+                fontSize: 'var(--text-caption2)',
+                color: 'var(--text-tertiary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-1)',
+                marginLeft: 'auto',
+              }}
+            >
+              <span>{agent.emoji}</span>
+              <span>{agent.name}</span>
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Work state indicators */}
+      {(ticket.workState === 'working' || isWorking) && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-1)',
+            fontSize: 'var(--text-caption2)',
+            fontWeight: 600,
+            color: 'var(--system-orange)',
+            animation: 'pulse 2s ease-in-out infinite',
+          }}
+        >
+          <span style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: 'var(--system-orange)',
+            animation: 'pulse 2s ease-in-out infinite',
+          }} />
+          Working...
+        </div>
+      )}
+
+      {ticket.workState === 'failed' && (
+        <div
+          style={{
+            fontSize: 'var(--text-caption2)',
+            fontWeight: 600,
+            color: 'var(--system-red)',
+            background: 'color-mix(in srgb, var(--system-red) 10%, transparent)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '1px var(--space-2)',
+          }}
+        >
+          Failed
+        </div>
+      )}
+    </div>
+  )
+}
