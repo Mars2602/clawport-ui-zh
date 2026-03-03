@@ -197,48 +197,49 @@ describe('executeWork', () => {
 /* ── persistWorkChat ─────────────────────────────────── */
 
 describe('persistWorkChat', () => {
-  it('saves prompt and response to localStorage', () => {
+  let fetchMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ ok: true }) })
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  it('posts prompt and response to chat-history API', () => {
     persistWorkChat('ticket-1', 'Do the work', 'Here is the result')
 
-    const stored = JSON.parse(storage['manor-kanban-chat-ticket-1'])
-    expect(stored).toHaveLength(2)
-    expect(stored[0].role).toBe('user')
-    expect(stored[0].content).toBe('Do the work')
-    expect(stored[1].role).toBe('assistant')
-    expect(stored[1].content).toBe('Here is the result')
-  })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/kanban/chat-history/ticket-1',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
 
-  it('appends to existing chat history', () => {
-    const existing = [
-      { id: 'old-1', role: 'user', content: 'Previous', timestamp: 500 },
-      { id: 'old-2', role: 'assistant', content: 'Previous reply', timestamp: 501 },
-    ]
-    storage['manor-kanban-chat-ticket-1'] = JSON.stringify(existing)
-
-    persistWorkChat('ticket-1', 'New prompt', 'New response')
-
-    const stored = JSON.parse(storage['manor-kanban-chat-ticket-1'])
-    expect(stored).toHaveLength(4)
-    expect(stored[0].content).toBe('Previous')
-    expect(stored[2].content).toBe('New prompt')
-    expect(stored[3].content).toBe('New response')
-  })
-
-  it('handles corrupted existing data gracefully', () => {
-    storage['manor-kanban-chat-ticket-1'] = 'not-json'
-
-    persistWorkChat('ticket-1', 'Prompt', 'Response')
-
-    const stored = JSON.parse(storage['manor-kanban-chat-ticket-1'])
-    expect(stored).toHaveLength(2)
-    expect(stored[0].content).toBe('Prompt')
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.messages).toHaveLength(2)
+    expect(body.messages[0].role).toBe('user')
+    expect(body.messages[0].content).toBe('Do the work')
+    expect(body.messages[1].role).toBe('assistant')
+    expect(body.messages[1].content).toBe('Here is the result')
   })
 
   it('generates unique IDs for messages', () => {
     persistWorkChat('ticket-1', 'Prompt', 'Response')
 
-    const stored = JSON.parse(storage['manor-kanban-chat-ticket-1'])
-    expect(stored[0].id).toBe('test-uuid-1')
-    expect(stored[1].id).toBe('test-uuid-2')
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.messages[0].id).toBe('test-uuid-1')
+    expect(body.messages[1].id).toBe('test-uuid-2')
+  })
+
+  it('sets assistant timestamp 1ms after user timestamp', () => {
+    persistWorkChat('ticket-1', 'Prompt', 'Response')
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.messages[1].timestamp).toBe(body.messages[0].timestamp + 1)
+  })
+
+  it('does not throw when fetch fails', () => {
+    fetchMock.mockRejectedValue(new Error('Network error'))
+    expect(() => persistWorkChat('ticket-1', 'Prompt', 'Response')).not.toThrow()
   })
 })

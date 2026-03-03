@@ -17,25 +17,6 @@ interface ChatMessage {
   isStreaming?: boolean
 }
 
-/* ── localStorage helpers ────────────────────────────── */
-
-function loadMessages(ticketId: string): ChatMessage[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const raw = localStorage.getItem(`manor-kanban-chat-${ticketId}`)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function saveMessages(ticketId: string, messages: ChatMessage[]): void {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.setItem(`manor-kanban-chat-${ticketId}`, JSON.stringify(messages))
-  } catch { /* storage full — ignore */ }
-}
-
 /* ── Simple markdown formatting (matches ConversationView pattern) ── */
 
 function formatInline(text: string): React.ReactNode {
@@ -232,17 +213,15 @@ export function TicketDetailPanel({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
-  // Load messages from localStorage on mount / ticket change
+  // Load messages from API on mount / ticket change
   useEffect(() => {
-    setMessages(loadMessages(ticket.id))
+    let cancelled = false
+    fetch(`/api/kanban/chat-history/${ticket.id}`)
+      .then(res => res.ok ? res.json() : [])
+      .then((msgs: ChatMessage[]) => { if (!cancelled) setMessages(msgs) })
+      .catch(() => { if (!cancelled) setMessages([]) })
+    return () => { cancelled = true }
   }, [ticket.id])
-
-  // Persist messages whenever they change (skip streaming updates for perf)
-  useEffect(() => {
-    if (!messages.some(m => m.isStreaming)) {
-      saveMessages(ticket.id, messages)
-    }
-  }, [messages, ticket.id])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -349,13 +328,30 @@ export function TicketDetailPanel({
           : m
         )
       )
+
+      // Persist user + assistant messages to filesystem
+      const completedAssistant = { ...assistantMsg, content: finalContent, isStreaming: undefined, timestamp: Date.now() }
+      fetch(`/api/kanban/chat-history/${ticket.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [userMsg, completedAssistant] }),
+      }).catch(() => { /* persist best-effort */ })
     } catch {
+      const errorContent = 'Error getting response. Check API connection.'
       setMessages(prev =>
         prev.map(m => m.id === assistantMsgId
-          ? { ...m, content: 'Error getting response. Check API connection.', isStreaming: false }
+          ? { ...m, content: errorContent, isStreaming: false }
           : m
         )
       )
+
+      // Persist user message + error response
+      const errorAssistant = { ...assistantMsg, content: errorContent, isStreaming: undefined, timestamp: Date.now() }
+      fetch(`/api/kanban/chat-history/${ticket.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [userMsg, errorAssistant] }),
+      }).catch(() => { /* persist best-effort */ })
     } finally {
       setIsStreaming(false)
       textareaRef.current?.focus()

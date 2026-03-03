@@ -122,45 +122,22 @@ export async function executeWork(
   }
 }
 
-/* ── Persist work chat to localStorage ───────────────── */
-
-interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: number
-}
+/* ── Persist work chat to filesystem via API ─────────── */
 
 export function persistWorkChat(
   ticketId: string,
   prompt: string,
   response: string,
 ): void {
-  if (typeof window === 'undefined') return
-
-  const key = `manor-kanban-chat-${ticketId}`
-  let existing: ChatMessage[] = []
-
-  try {
-    const raw = localStorage.getItem(key)
-    if (raw) existing = JSON.parse(raw)
-  } catch { /* start fresh */ }
-
   const now = Date.now()
-  const userMsg: ChatMessage = {
-    id: crypto.randomUUID(),
-    role: 'user',
-    content: prompt,
-    timestamp: now,
-  }
-  const assistantMsg: ChatMessage = {
-    id: crypto.randomUUID(),
-    role: 'assistant',
-    content: response,
-    timestamp: now + 1,
-  }
+  const messages = [
+    { id: crypto.randomUUID(), role: 'user' as const, content: prompt, timestamp: now },
+    { id: crypto.randomUUID(), role: 'assistant' as const, content: response, timestamp: now + 1 },
+  ]
 
-  try {
-    localStorage.setItem(key, JSON.stringify([...existing, userMsg, assistantMsg]))
-  } catch { /* storage full */ }
+  fetch(`/api/kanban/chat-history/${ticketId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  }).catch(() => { /* persist best-effort */ })
 }
