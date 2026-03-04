@@ -15,21 +15,53 @@ export function AgentsSection() {
     <>
       <Heading>Agents</Heading>
       <Paragraph>
-        ClawPort ships with a default agent registry at{" "}
-        <InlineCode>lib/agents.json</InlineCode>. This is a working example
-        showing a full team hierarchy. It works out of the box if your OpenClaw
-        workspace has matching agent SOUL files.
+        ClawPort automatically discovers your agents from your OpenClaw
+        workspace. No configuration is needed -- if you have agents in your
+        workspace, ClawPort will find and display them.
       </Paragraph>
 
-      <SubHeading>Using Your Own Agents</SubHeading>
+      <SubHeading>Auto-Discovery (Default)</SubHeading>
       <Paragraph>
-        To define your own agent team, create a file at:
+        ClawPort scans <InlineCode>$WORKSPACE_PATH/agents/</InlineCode> for
+        subdirectories containing a <InlineCode>SOUL.md</InlineCode> file. Each
+        becomes an agent with:
+      </Paragraph>
+      <BulletList
+        items={[
+          <>
+            <strong style={{ color: "var(--text-primary)" }}>Name</strong> from
+            the first <InlineCode># Heading</InlineCode> in SOUL.md, or the
+            directory name as fallback
+          </>,
+          <>
+            <strong style={{ color: "var(--text-primary)" }}>Title</strong> from
+            a role description after an em-dash in the heading (e.g., "ECHO --
+            Community Voice Monitor")
+          </>,
+          <>
+            <strong style={{ color: "var(--text-primary)" }}>Sub-agents</strong>{" "}
+            from <InlineCode>sub-agents/</InlineCode> and{" "}
+            <InlineCode>members/</InlineCode> subdirectories
+          </>,
+        ]}
+      />
+      <Paragraph>
+        If <InlineCode>$WORKSPACE_PATH/SOUL.md</InlineCode> exists, it becomes
+        the root orchestrator. If{" "}
+        <InlineCode>$WORKSPACE_PATH/IDENTITY.md</InlineCode> exists, the root
+        agent's name and emoji are read from it.
+      </Paragraph>
+
+      <SubHeading>Using a Custom Registry</SubHeading>
+      <Paragraph>
+        For full control over names, colors, emoji, hierarchy, and tools, create
+        a file at:
       </Paragraph>
       <CodeBlock>{`$WORKSPACE_PATH/clawport/agents.json`}</CodeBlock>
       <Paragraph>
         ClawPort checks for this file on every request. If it exists, it
-        replaces the bundled registry entirely. If it's missing or contains
-        invalid JSON, the bundled default is used as a fallback.
+        replaces auto-discovery entirely. If it's missing or contains invalid
+        JSON, auto-discovery is used instead.
       </Paragraph>
 
       <SubHeading>Agent Entry Format</SubHeading>
@@ -174,19 +206,20 @@ export function AgentsSection() {
       <NumberedList
         items={[
           <>
-            <InlineCode>loadRegistry()</InlineCode> checks{" "}
-            <InlineCode>$WORKSPACE_PATH/clawport/agents.json</InlineCode> first
-            (user override).
+            <strong style={{ color: "var(--text-primary)" }}>User override</strong>{" "}
+            -- <InlineCode>$WORKSPACE_PATH/clawport/agents.json</InlineCode> (if
+            exists and valid JSON).
           </>,
           <>
-            Falls back to bundled <InlineCode>lib/agents.json</InlineCode> if
-            the workspace file is missing or has invalid JSON.
+            <strong style={{ color: "var(--text-primary)" }}>Auto-discovery</strong>{" "}
+            -- scans <InlineCode>$WORKSPACE_PATH/agents/</InlineCode> for
+            subdirectories with SOUL.md, sub-agents, and members.
           </>,
           <>
-            <InlineCode>lib/agents.ts</InlineCode> merges in SOUL.md content
-            from each agent's <InlineCode>soulPath</InlineCode>.
+            <strong style={{ color: "var(--text-primary)" }}>Bundled fallback</strong>{" "}
+            -- <InlineCode>lib/agents.json</InlineCode> (example team for demo
+            purposes).
           </>,
-          "The result is the full agent list used by all pages.",
         ]}
       />
 

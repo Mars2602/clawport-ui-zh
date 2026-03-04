@@ -93,6 +93,27 @@ npm install -g clawport-ui`}
         <InlineCode>.env.local</InlineCode>.
       </Paragraph>
 
+      {/* ── 405 Method Not Allowed ─────────────────────────────── */}
+      <SubHeading>405 Method Not Allowed when chatting</SubHeading>
+      <Paragraph>
+        The gateway's HTTP chat completions endpoint is disabled by default.
+        Enable it in <InlineCode>~/.openclaw/openclaw.json</InlineCode>:
+      </Paragraph>
+      <CodeBlock title="~/.openclaw/openclaw.json (merge into existing config)">
+        {`"gateway": {
+  "http": {
+    "endpoints": {
+      "chatCompletions": { "enabled": true }
+    }
+  }
+}`}
+      </CodeBlock>
+      <Paragraph>
+        Restart the gateway after changing the config. You can also re-run{" "}
+        <InlineCode>clawport setup</InlineCode> which will detect and fix this
+        automatically.
+      </Paragraph>
+
       {/* ── Issue 2 ────────────────────────────────────────────── */}
       <SubHeading>Gateway connection refused / chat not working</SubHeading>
       <Paragraph>
@@ -246,7 +267,7 @@ openclaw gateway call health --token <token>`}
 
       <SubHeading>Running Tests</SubHeading>
       <CodeBlock title="terminal">
-        {`npm test             # Run all 288 tests via Vitest
+        {`npm test             # Run all tests via Vitest
 npx tsc --noEmit     # Type-check (expect 0 errors)`}
       </CodeBlock>
 

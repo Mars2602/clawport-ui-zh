@@ -69,8 +69,8 @@ clawport dev`}
       <SubHeading>Quick Start (from source)</SubHeading>
       <CodeBlock title="terminal">
         {`# Clone the repo
-git clone https://github.com/openclaw/clawport.git
-cd clawport
+git clone https://github.com/JohnRiceML/clawport-ui.git
+cd clawport-ui
 
 # Install dependencies
 npm install
@@ -162,6 +162,12 @@ npm run dev`}
         <InlineCode>localhost:18789</InlineCode>. Start it in a separate terminal:
       </Paragraph>
       <CodeBlock>{`openclaw gateway run`}</CodeBlock>
+      <Callout type="warning">
+        The gateway's HTTP chat completions endpoint is disabled by default.
+        Running <InlineCode>clawport setup</InlineCode> will detect this and
+        offer to enable it automatically. If chat returns a 405 error, see the
+        Troubleshooting section.
+      </Callout>
 
       <SubHeading>First-Run Onboarding</SubHeading>
       <Paragraph>

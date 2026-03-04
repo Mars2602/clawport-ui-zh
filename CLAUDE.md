@@ -5,7 +5,7 @@
 ```bash
 npm run setup        # Auto-detect OpenClaw config, write .env.local
 npm run dev          # Start dev server (Turbopack, port 3000)
-npm test             # Run all 288 tests via Vitest (17 suites)
+npm test             # Run all 317 tests via Vitest (17 suites)
 npx tsc --noEmit     # Type-check (expect 0 errors)
 npx next build       # Production build
 ```
@@ -216,7 +216,7 @@ Used by: `lib/memory.ts`, `lib/cron-runs.ts`, `lib/kanban/chat-store.ts`, `lib/c
 
 ## Testing
 
-17 test suites, 288 tests total. All in `lib/` directory.
+17 test suites, 317 tests total. All in `lib/` directory.
 
 ```bash
 npx vitest run                     # All tests
