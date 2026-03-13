@@ -1,14 +1,14 @@
 {
-  "name": "clawport-ui",
-  "version": "0.8.3",
-  "description": "Open-source dashboard for managing, monitoring, and chatting with your OpenClaw AI agents.",
-  "homepage": "https://clawport.dev",
+  "name": "clawport-ui-zh",
+  "version": "0.9.0",
+  "description": "ClawPort UI with Chinese i18n support - AI Agent Management Dashboard",
+  "homepage": "https://github.com/Mars2602/clawport-ui-zh",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JohnRiceML/clawport-ui.git"
+    "url": "https://github.com/Mars2602/clawport-ui-zh.git"
   },
   "bugs": {
-    "url": "https://github.com/JohnRiceML/clawport-ui/issues"
+    "url": "https://github.com/Mars2602/clawport-ui-zh/issues"
   },
   "keywords": [
     "openclaw",
@@ -16,7 +16,11 @@
     "dashboard",
     "clawport",
     "agent-management",
-    "next.js"
+    "next.js",
+    "i18n",
+    "chinese",
+    "internationalization",
+    "multilingual"
   ],
   "license": "MIT",
   "engines": {
