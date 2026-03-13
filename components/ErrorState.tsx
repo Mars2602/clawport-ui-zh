@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { RotateCcw } from 'lucide-react'
 
 interface ErrorStateProps {
@@ -8,6 +9,7 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
+  const t = useTranslations('error')
   return (
     <div
       className="flex items-center justify-center h-full"
@@ -49,7 +51,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           color: 'var(--text-primary)',
           marginBottom: 4,
         }}>
-          Something went wrong
+          {t('title')}
         </div>
 
         <p style={{
@@ -88,7 +90,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
             }}
           >
             <RotateCcw size={16} />
-            Try Again
+            {t('tryAgain')}
           </button>
         )}
       </div>

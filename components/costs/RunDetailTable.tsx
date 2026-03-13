@@ -4,7 +4,34 @@ import { useState } from 'react'
 import type { RunCost } from '@/lib/types'
 import { fmtCost, fmtDate, fmtTokens } from './formatters'
 
-export function RunDetailTable({ runCosts, jobName }: { runCosts: RunCost[]; jobName: (id: string) => string }) {
+interface RunDetailTableLabels {
+  perRunDetail?: string
+  run?: string
+  runs?: string
+  time?: string
+  job?: string
+  model?: string
+  input?: string
+  output?: string
+  cache?: string
+  cost?: string
+  showAllRuns?: string
+}
+
+export function RunDetailTable({ runCosts, jobName, labels }: { runCosts: RunCost[]; jobName: (id: string) => string; labels?: RunDetailTableLabels }) {
+  const l = {
+    perRunDetail: labels?.perRunDetail ?? 'Per-Run Detail',
+    run: labels?.run ?? 'run',
+    runs: labels?.runs ?? 'runs',
+    time: labels?.time ?? 'Time',
+    job: labels?.job ?? 'Job',
+    model: labels?.model ?? 'Model',
+    input: labels?.input ?? 'Input',
+    output: labels?.output ?? 'Output',
+    cache: labels?.cache ?? 'Cache',
+    cost: labels?.cost ?? 'Cost',
+    showAllRuns: labels?.showAllRuns ?? 'Show all runs',
+  }
   const [showAll, setShowAll] = useState(false)
   const sorted = [...runCosts].sort((a, b) => b.ts - a.ts)
   const visible = showAll ? sorted : sorted.slice(0, 50)
@@ -27,7 +54,7 @@ export function RunDetailTable({ runCosts, jobName }: { runCosts: RunCost[]; job
         color: 'var(--text-tertiary)',
         fontWeight: 'var(--weight-medium)',
       }}>
-        Per-Run Detail ({sorted.length} run{sorted.length !== 1 ? 's' : ''})
+        {l.perRunDetail} ({sorted.length} {sorted.length !== 1 ? l.runs : l.run})
       </div>
 
       {/* Header */}
@@ -39,13 +66,13 @@ export function RunDetailTable({ runCosts, jobName }: { runCosts: RunCost[]; job
         fontWeight: 'var(--weight-medium)',
         gap: 'var(--space-3)',
       }}>
-        <span style={{ width: 120, flexShrink: 0 }}>Time</span>
-        <span style={{ flex: 2, minWidth: 0 }}>Job</span>
-        <span className="hidden-mobile" style={{ width: 120 }}>Model</span>
-        <span style={{ width: 60, textAlign: 'right' }}>Input</span>
-        <span style={{ width: 60, textAlign: 'right' }}>Output</span>
-        <span className="hidden-mobile" style={{ width: 60, textAlign: 'right' }}>Cache</span>
-        <span style={{ width: 70, textAlign: 'right' }}>Cost</span>
+        <span style={{ width: 120, flexShrink: 0 }}>{l.time}</span>
+        <span style={{ flex: 2, minWidth: 0 }}>{l.job}</span>
+        <span className="hidden-mobile" style={{ width: 120 }}>{l.model}</span>
+        <span style={{ width: 60, textAlign: 'right' }}>{l.input}</span>
+        <span style={{ width: 60, textAlign: 'right' }}>{l.output}</span>
+        <span className="hidden-mobile" style={{ width: 60, textAlign: 'right' }}>{l.cache}</span>
+        <span style={{ width: 70, textAlign: 'right' }}>{l.cost}</span>
       </div>
 
       {/* Rows */}
@@ -99,7 +126,7 @@ export function RunDetailTable({ runCosts, jobName }: { runCosts: RunCost[]; job
               fontWeight: 'var(--weight-medium)',
             }}
           >
-            Show all {sorted.length} runs
+            {l.showAllRuns} ({sorted.length})
           </button>
         </div>
       )}

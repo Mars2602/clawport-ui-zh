@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { NavLinks } from '@/components/NavLinks';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { MobileSidebar } from '@/components/MobileSidebar';
@@ -14,6 +15,7 @@ import { useSettings } from '@/app/settings-provider';
  */
 export function Sidebar() {
   const { settings } = useSettings();
+  const t = useTranslations('common');
   const openSearch = useCallback(() => {
     // We trigger the search modal by simulating Cmd+K.
     // Instead, we expose a controlled open state via a custom event.
@@ -76,15 +78,15 @@ export function Sidebar() {
                   ? <>Claw<span style={{ color: 'var(--accent)' }}>Port</span></>
                   : settings.portalName}
               </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: 'var(--text-secondary)',
-                  letterSpacing: '0.01em',
-                }}
-              >
-                {settings.portalSubtitle ?? 'Command Centre'}
-              </div>
+          <div
+            style={{
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              letterSpacing: '0.01em',
+            }}
+          >
+            {settings.portalSubtitle ?? t('commandCentre')}
+          </div>
             </div>
           </div>
         </div>

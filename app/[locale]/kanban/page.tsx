@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import type { Agent } from '@/lib/types'
-import type { KanbanTicket, TicketStatus, TicketPriority, TeamRole } from '@/lib/kanban/types'
+import type { KanbanTicket, TicketStatus, TicketPriority, TeamRole, KanbanColumn } from '@/lib/kanban/types'
 import {
   loadTickets,
   saveTickets,
@@ -22,6 +23,9 @@ import { ErrorState } from '@/components/ErrorState'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function KanbanPage() {
+  const t = useTranslations('kanban')
+  const locale = useLocale()
+  const isZh = locale === 'zh'
   const [tickets, setTickets] = useState<KanbanStore>({})
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,7 +45,7 @@ export default function KanbanPage() {
     // Load agents from API
     fetch('/api/agents')
       .then((r) => {
-        if (!r.ok) throw new Error('Failed to fetch agents')
+        if (!r.ok) throw new Error(t('common.fetchAgentsError'))
         return r.json()
       })
       .then((a: Agent[]) => setAgents(a))
@@ -144,6 +148,15 @@ export default function KanbanPage() {
   )
   const assignedAgents = agents.filter((a) => assignedAgentIds.has(a.id))
 
+  // Translated columns
+  const columns: KanbanColumn[] = [
+    { id: 'backlog', title: t('backlog') },
+    { id: 'todo', title: t('todo') },
+    { id: 'in-progress', title: t('inProgress') },
+    { id: 'review', title: t('review') },
+    { id: 'done', title: t('done') },
+  ]
+
   return (
     <div className="flex h-full relative" style={{ background: 'var(--bg)' }}>
       {/* Board area */}
@@ -169,7 +182,7 @@ export default function KanbanPage() {
                 letterSpacing: '-0.3px',
               }}
             >
-              Kanban Board
+              {t('title')}
             </h1>
             <p
               style={{
@@ -178,7 +191,7 @@ export default function KanbanPage() {
                 margin: '2px 0 0',
               }}
             >
-              {ticketCount} ticket{ticketCount !== 1 ? 's' : ''}
+              {ticketCount} {isZh ? t('tickets') : (ticketCount !== 1 ? t('tickets') : t('ticket'))}
             </p>
           </div>
 
@@ -197,7 +210,7 @@ export default function KanbanPage() {
             }}
           >
             <Plus size={16} />
-            New Ticket
+            {t('newTicket')}
           </button>
         </div>
 
@@ -231,7 +244,7 @@ export default function KanbanPage() {
                 flexShrink: 0,
               }}
             >
-              All
+              {t('all')}
             </button>
             {assignedAgents.map((agent) => (
               <button
@@ -294,6 +307,16 @@ export default function KanbanPage() {
               onCreateTicket={() => setCreateOpen(true)}
               isWorking={isWorking}
               filterAgentId={filterAgentId}
+              columns={columns}
+              noTicketsLabel={t('noTickets')}
+              ticketCardLabels={{
+                leadDev: t('leadDev'),
+                uxUi: t('uxUi'),
+                qa: t('qa'),
+                priorityLow: t('priorityLow'),
+                priorityMedium: t('priorityMedium'),
+                priorityHigh: t('priorityHigh'),
+              }}
             />
           )}
         </div>
@@ -317,6 +340,11 @@ export default function KanbanPage() {
           onStatusChange={(status) => handleMoveTicket(selectedTicket.id, status)}
           onDelete={() => handleDeleteTicket(selectedTicket.id)}
           onRetryWork={() => handleRetryWork(selectedTicket.id)}
+          labels={{
+            leadDev: t('leadDev'),
+            uxUi: t('uxUi'),
+            qa: t('qa'),
+          }}
         />
       )}
 
@@ -326,6 +354,23 @@ export default function KanbanPage() {
         onOpenChange={setCreateOpen}
         agents={agents}
         onSubmit={handleCreateTicket}
+        labels={{
+          title: t('createTitle'),
+          description: t('createDesc'),
+          formTitle: t('formTitle'),
+          formTitlePlaceholder: t('formTitlePlaceholder'),
+          formDescription: t('formDescription'),
+          formDescPlaceholder: t('formDescPlaceholder'),
+          formPriority: t('formPriority'),
+          formAssignee: t('formAssignee'),
+          formRole: t('formRole'),
+          priorityLow: t('priorityLow'),
+          priorityMedium: t('priorityMedium'),
+          priorityHigh: t('priorityHigh'),
+          leadDev: t('leadDev'),
+          uxUi: t('uxUi'),
+          qa: t('qa'),
+        }}
       />
     </div>
   )

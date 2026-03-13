@@ -11,9 +11,25 @@ interface AgentListProps {
   activeId: string | null
   onSelect: (agent: Agent) => void
   loading?: boolean
+  labels?: {
+    title: string
+    searchPlaceholder: string
+    noAgentsMatch: string
+    startConversation: string
+    timeNow: string
+    timeMinutes: string
+  }
 }
 
-export function AgentList({ agents, conversations, activeId, onSelect, loading }: AgentListProps) {
+export function AgentList({ agents, conversations, activeId, onSelect, loading, labels }: AgentListProps) {
+  const l = labels ?? {
+    title: 'Messages',
+    searchPlaceholder: 'Search agents...',
+    noAgentsMatch: "No agents match '{query}'",
+    startConversation: 'Start a conversation',
+    timeNow: 'now',
+    timeMinutes: 'm',
+  }
   const [search, setSearch] = useState('')
 
   const filtered = search.trim()
@@ -61,7 +77,7 @@ export function AgentList({ agents, conversations, activeId, onSelect, loading }
           color: 'var(--text-primary)',
           margin: 0,
         }}>
-          Messages
+          {l.title}
         </h2>
 
         {/* Search */}
@@ -87,7 +103,7 @@ export function AgentList({ agents, conversations, activeId, onSelect, loading }
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search agents..."
+            placeholder={l.searchPlaceholder}
             aria-label="Search agents"
             className="focus-ring"
             style={{
@@ -158,7 +174,7 @@ export function AgentList({ agents, conversations, activeId, onSelect, loading }
               color: 'var(--text-tertiary)',
               lineHeight: 'var(--leading-relaxed)',
             }}>
-              No agents match &lsquo;{search.trim()}&rsquo;
+              {l.noAgentsMatch.replace('{query}', search.trim())}
             </div>
           </div>
         ) : (
@@ -172,9 +188,9 @@ export function AgentList({ agents, conversations, activeId, onSelect, loading }
               ? (lastMsg.role === 'user' ? 'You: ' : '') +
                 lastMsg.content.replace(/[#*`]/g, '').slice(0, 50) +
                 (lastMsg.content.length > 50 ? '\u2026' : '')
-              : agent.description?.slice(0, 50) || 'Start a conversation'
+              : agent.description?.slice(0, 50) || l.startConversation
 
-            const timeLabel = lastMsg ? formatTime(lastMsg.timestamp) : ''
+            const timeLabel = lastMsg ? formatTime(lastMsg.timestamp, labels) : ''
 
             return (
               <button
@@ -289,7 +305,16 @@ export function AgentListMobile({
   conversations,
   onSelect,
   loading,
+  labels,
 }: Omit<AgentListProps, 'activeId'>) {
+  const l = labels ?? {
+    title: 'Messages',
+    searchPlaceholder: 'Search agents...',
+    noAgentsMatch: "No agents match '{query}'",
+    startConversation: 'Start a conversation',
+    timeNow: 'now',
+    timeMinutes: 'm',
+  }
   const [search, setSearch] = useState('')
 
   const filtered = search.trim()
@@ -331,7 +356,7 @@ export function AgentListMobile({
           color: 'var(--text-primary)',
           margin: 0,
         }}>
-          Messages
+          {l.title}
         </h2>
 
         {/* Search */}
@@ -357,7 +382,7 @@ export function AgentListMobile({
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search agents..."
+            placeholder={l.searchPlaceholder}
             aria-label="Search agents"
             className="focus-ring"
             style={{
@@ -408,7 +433,7 @@ export function AgentListMobile({
               color: 'var(--text-tertiary)',
               lineHeight: 'var(--leading-relaxed)',
             }}>
-              No agents match &lsquo;{search.trim()}&rsquo;
+              {l.noAgentsMatch.replace('{query}', search.trim())}
             </div>
           </div>
         ) : (
@@ -421,9 +446,9 @@ export function AgentListMobile({
               ? (lastMsg.role === 'user' ? 'You: ' : '') +
                 lastMsg.content.replace(/[#*`]/g, '').slice(0, 60) +
                 (lastMsg.content.length > 60 ? '\u2026' : '')
-              : agent.description?.slice(0, 60) || 'Start a conversation'
+              : agent.description?.slice(0, 60) || l.startConversation
 
-            const timeLabel = lastMsg ? formatTime(lastMsg.timestamp) : ''
+            const timeLabel = lastMsg ? formatTime(lastMsg.timestamp, labels) : ''
 
             return (
               <button
@@ -527,11 +552,12 @@ export function AgentListMobile({
   )
 }
 
-function formatTime(ts: number): string {
+function formatTime(ts: number, labels?: AgentListProps['labels']): string {
   const now = Date.now()
   const diff = now - ts
-  if (diff < 60000) return 'now'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`
+  const l = labels ?? { timeNow: 'now', timeMinutes: 'm' }
+  if (diff < 60000) return l.timeNow
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}${l.timeMinutes}`
   if (diff < 86400000) return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }

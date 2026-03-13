@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
+import { useTranslations, useLocale } from "next-intl"
 import type { Agent, CronJob } from "@/lib/types"
 import { AgentAvatar } from "@/components/AgentAvatar"
 
@@ -13,18 +14,30 @@ interface FeedViewProps {
 
 type Filter = "all" | "error" | "ok"
 
-const PILLS: { key: Filter; label: string; dotColor: string }[] = [
-  { key: "all", label: "All", dotColor: "var(--text-primary)" },
-  { key: "ok", label: "Healthy", dotColor: "var(--system-green)" },
-  { key: "error", label: "Errors", dotColor: "var(--system-red)" },
-]
+function usePills(t: (key: string) => string) {
+  return [
+    { key: "all" as Filter, label: t("all"), dotColor: "var(--text-primary)" },
+    { key: "ok" as Filter, label: t("healthy"), dotColor: "var(--system-green)" },
+    { key: "error" as Filter, label: t("errors"), dotColor: "var(--system-red)" },
+  ]
+}
 
-function relativeTime(dateStr: string): string {
+function relativeTime(dateStr: string, isZh: boolean): string {
   const now = Date.now()
   const then = new Date(dateStr).getTime()
   if (isNaN(then)) return dateStr
   const diffMs = now - then
   const mins = Math.floor(diffMs / 60000)
+  if (isZh) {
+    if (mins < 1) return "刚刚"
+    if (mins < 60) return `${mins}分钟前`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}小时前`
+    const days = Math.floor(hours / 24)
+    if (days === 1) return "昨天"
+    if (days < 7) return `${days}天前`
+    return new Date(dateStr).toLocaleDateString('zh-CN')
+  }
   if (mins < 1) return "Just now"
   if (mins < 60) return `${mins}m ago`
   const hours = Math.floor(mins / 60)
@@ -35,7 +48,7 @@ function relativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString()
 }
 
-function StatusBadge({ status }: { status: CronJob["status"] }) {
+function StatusBadge({ status, t }: { status: CronJob["status"]; t: (key: string) => string }) {
   const bg =
     status === "ok"
       ? "color-mix(in srgb, var(--system-green) 15%, transparent)"
@@ -48,7 +61,7 @@ function StatusBadge({ status }: { status: CronJob["status"] }) {
       : status === "error"
         ? "var(--system-red)"
         : "var(--text-tertiary)"
-  const label = status === "ok" ? "healthy" : status
+  const label = status === "ok" ? t("healthy") : status
 
   return (
     <span
@@ -79,6 +92,7 @@ function StatCard({
   color: string
   icon: React.ReactNode
 }) {
+  // StatCard is a presentational component, label is already translated when passed in
   return (
     <div
       style={{
@@ -134,6 +148,11 @@ function StatCard({
 export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps) {
   const [filter, setFilter] = useState<Filter>("all")
   const pillsRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations('common')
+  const tCrons = useTranslations('crons')
+  const locale = useLocale()
+  const isZh = locale === 'zh'
+  const PILLS = usePills(t)
 
   const agentMap = new Map(agents.map((a) => [a.id, a]))
 
@@ -191,7 +210,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
       >
         <StatCard
           value={counts.all}
-          label="Total crons"
+          label={`${t('total')} ${t('crons')}`}
           color="var(--text-primary)"
           icon={
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -202,7 +221,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
         />
         <StatCard
           value={counts.ok}
-          label="Healthy"
+          label={t('healthy')}
           color="var(--system-green)"
           icon={
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -213,7 +232,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
         />
         <StatCard
           value={counts.error}
-          label="Errors"
+          label={t('errors')}
           color={counts.error > 0 ? "var(--system-red)" : "var(--text-tertiary)"}
           icon={
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -225,7 +244,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
         />
         <StatCard
           value={idleCount}
-          label="Idle"
+          label={t('idle')}
           color="var(--text-tertiary)"
           icon={
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -324,10 +343,10 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
             <polyline points="8 4.5 8 8 10.5 10" stroke="var(--fill-tertiary)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div style={{ fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}>
-            {filter === "all" ? "No cron jobs configured" : `No ${filter} crons`}
+            {filter === "all" ? tCrons('noScheduledTasks') : tCrons('noCronsMatchFilter')}
           </div>
           <div style={{ fontSize: "var(--text-caption1)", marginTop: "var(--space-1)" }}>
-            {filter !== "all" ? "Try changing the filter" : "Crons will appear here once configured"}
+            {filter !== "all" ? tCrons('tryDifferentFilter') : tCrons('cronJobsDescription')}
           </div>
         </div>
       ) : (
@@ -401,7 +420,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
                         color: "var(--text-primary)",
                       }}
                     >
-                      {agent?.name ?? "Unknown"}
+                      {agent?.name ?? tCrons('unknown')}
                     </span>
                     <span
                       style={{
@@ -440,7 +459,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
                             color: "var(--text-quaternary)",
                           }}
                         >
-                          {relativeTime(cron.lastRun)}
+                          {relativeTime(cron.lastRun, isZh)}
                         </span>
                       </>
                     )}
@@ -470,7 +489,7 @@ export function FeedView({ agents, crons, selectedId, onSelect }: FeedViewProps)
                     flexShrink: 0,
                   }}
                 >
-                  <StatusBadge status={cron.status} />
+                  <StatusBadge status={cron.status} t={t} />
                   <span
                     style={{
                       fontSize: "var(--text-caption1)",

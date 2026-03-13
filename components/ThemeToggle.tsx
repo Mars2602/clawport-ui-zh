@@ -1,12 +1,23 @@
 'use client';
 
 import { useRef, useCallback } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { THEMES } from '@/lib/themes';
 import { useTheme } from '@/app/providers';
+
+const THEME_LABELS: Record<string, { en: string; zh: string }> = {
+  dark: { en: 'Dark', zh: '深色' },
+  glass: { en: 'Glass', zh: '毛玻璃' },
+  color: { en: 'Color', zh: '彩色' },
+  light: { en: 'Light', zh: '浅色' },
+};
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('common');
+  const locale = useLocale();
+  const getThemeLabel = (id: string) => THEME_LABELS[id]?.[locale as 'en' | 'zh'] ?? THEME_LABELS[id]?.en ?? id;
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -45,25 +56,26 @@ export function ThemeToggle() {
           paddingLeft: '4px',
         }}
       >
-        Theme
+        {t('theme')}
       </div>
       <div
         ref={containerRef}
         className="flex flex-wrap gap-1.5"
         role="radiogroup"
-        aria-label="Theme selection"
+        aria-label={t('theme')}
         onKeyDown={handleKeyDown}
       >
-        {THEMES.map((t) => {
-          const isActive = theme === t.id;
+        {THEMES.map((themeItem) => {
+          const isActive = theme === themeItem.id;
+          const label = getThemeLabel(themeItem.id);
           return (
             <button
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              title={t.label}
+              key={themeItem.id}
+              onClick={() => setTheme(themeItem.id)}
+              title={label}
               role="radio"
               aria-checked={isActive}
-              aria-label={`${t.label} theme`}
+              aria-label={`${label} theme`}
               tabIndex={isActive ? 0 : -1}
               className="focus-ring"
               style={{
@@ -86,7 +98,7 @@ export function ThemeToggle() {
               }}
             >
               <span style={{ fontSize: '13px', lineHeight: 1 }}>
-                {t.emoji}
+                {themeItem.emoji}
               </span>
               {isActive && (
                 <span
@@ -96,7 +108,7 @@ export function ThemeToggle() {
                     letterSpacing: '-0.01em',
                   }}
                 >
-                  {t.label}
+                  {label}
                 </span>
               )}
             </button>

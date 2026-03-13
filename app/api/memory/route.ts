@@ -4,13 +4,15 @@ import { writeMemoryFile, PathValidationError } from '@/lib/memory-write'
 import { apiErrorResponse } from '@/lib/api-error'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url)
+    const locale = searchParams.get('locale') || 'en'
     const files = await getMemoryFiles()
     const config = getMemoryConfig()
     const status = getMemoryStatus()
     const stats = computeMemoryStats(files)
-    const health = computeMemoryHealth(files, config, status, stats)
+    const health = computeMemoryHealth(files, config, status, stats, Date.now(), locale)
     return NextResponse.json({ files, config, status, stats, health })
   } catch (err) {
     return apiErrorResponse(err, 'Failed to load memory files')

@@ -4,7 +4,14 @@ import { useState } from 'react'
 import type { CostSummary } from '@/lib/types'
 import { fmtCost } from './formatters'
 
-export function DailyCostChart({ dailyCosts }: { dailyCosts: CostSummary['dailyCosts'] }) {
+interface DailyCostChartLabels {
+  dailyEstimatedCost?: string
+}
+
+export function DailyCostChart({ dailyCosts, labels }: { dailyCosts: CostSummary['dailyCosts']; labels?: DailyCostChartLabels }) {
+  const l = {
+    dailyEstimatedCost: labels?.dailyEstimatedCost ?? 'Daily Estimated Cost',
+  }
   const [hover, setHover] = useState<number | null>(null)
   if (dailyCosts.length === 0) return null
 
@@ -37,7 +44,7 @@ export function DailyCostChart({ dailyCosts }: { dailyCosts: CostSummary['dailyC
         fontWeight: 'var(--weight-medium)',
         marginBottom: 'var(--space-3)',
       }}>
-        Daily Estimated Cost
+        {l.dailyEstimatedCost}
       </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}

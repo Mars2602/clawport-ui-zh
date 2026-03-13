@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type {
   Agent,
   MemoryFileInfo,
@@ -760,30 +760,30 @@ function useBestPracticeSections(t: (key: string) => string) {
       title: t("writingToMemory"),
       color: "var(--system-green)",
       tips: [
-        { do: true, text: "Keep MEMORY.md concise -- curated facts, not running logs" },
-        { do: true, text: "Use daily logs (YYYY-MM-DD.md) for ephemeral session context" },
-        { do: false, text: "Don't dump raw conversation transcripts into memory files" },
-        { do: true, text: "Structure entries with clear headers so search can find them" },
+        { do: true, text: t("bestPractice.memoryMdConcise") },
+        { do: true, text: t("bestPractice.useDailyLogs") },
+        { do: false, text: t("bestPractice.noRawTranscripts") },
+        { do: true, text: t("bestPractice.clearHeaders") },
       ],
     },
     {
       title: t("searchRetrieval"),
       color: "var(--system-blue)",
       tips: [
-        { do: true, text: "Enable hybrid search -- combines semantic + keyword matching" },
-        { do: true, text: "Turn on MMR (Maximal Marginal Relevance) to reduce duplicate results" },
-        { do: true, text: "Configure temporal decay so stale daily logs rank lower over time" },
-        { do: false, text: "Don't set half-life too short -- important context needs time to be useful" },
+        { do: true, text: t("bestPractice.enableHybridSearch") },
+        { do: true, text: t("bestPractice.enableMmr") },
+        { do: true, text: t("bestPractice.configureDecay") },
+        { do: false, text: t("bestPractice.noShortHalfLife") },
       ],
     },
     {
       title: t("maintenance"),
       color: "var(--system-orange)",
       tips: [
-        { do: true, text: "Review and prune old daily logs periodically" },
-        { do: true, text: "Promote recurring patterns from daily logs into evergreen files" },
-        { do: true, text: "Enable memory flush to auto-compact context before token limits" },
-        { do: false, text: "Don't let MEMORY.md grow past ~200 lines -- split into topic files" },
+        { do: true, text: t("bestPractice.reviewLogs") },
+        { do: true, text: t("bestPractice.promotePatterns") },
+        { do: true, text: t("bestPractice.enableFlush") },
+        { do: false, text: t("bestPractice.noLongMemoryMd") },
       ],
     },
   ];
@@ -858,14 +858,17 @@ function BestPractices({ t }: { t: (key: string) => string }) {
 
 /* ─── Guide: File Reference ──────────────────────────────────── */
 
-const FILE_REFERENCE = [
-  { path: "MEMORY.md", purpose: "Long-term curated facts", decay: "Low (evergreen)" },
-  { path: "memory/team-memory.md", purpose: "Shared team knowledge", decay: "Low (evergreen)" },
-  { path: "memory/team-intel.json", purpose: "Structured team data", decay: "Low (evergreen)" },
-  { path: "memory/YYYY-MM-DD.md", purpose: "Daily ephemeral context", decay: "High (temporal)" },
-];
+function useFileReference(t: (key: string) => string) {
+  return [
+    { path: "MEMORY.md", purpose: t("fileRef.memoryMdPurpose"), decay: t("fileRef.lowDecay") },
+    { path: "memory/team-memory.md", purpose: t("fileRef.teamMemoryPurpose"), decay: t("fileRef.lowDecay") },
+    { path: "memory/team-intel.json", purpose: t("fileRef.teamIntelPurpose"), decay: t("fileRef.lowDecay") },
+    { path: "memory/YYYY-MM-DD.md", purpose: t("fileRef.dailyLogPurpose"), decay: t("fileRef.highDecay") },
+  ];
+}
 
 function FileReference({ t }: { t: (key: string) => string }) {
+  const fileReference = useFileReference(t);
   return (
     <div
       style={{
@@ -931,7 +934,7 @@ function FileReference({ t }: { t: (key: string) => string }) {
             </tr>
           </thead>
           <tbody>
-            {FILE_REFERENCE.map((row) => (
+            {fileReference.map((row) => (
               <tr key={row.path}>
                 <td
                   className="font-mono"
@@ -1012,12 +1015,7 @@ function FlushSection({ config, t }: { config: MemoryConfig; t: (key: string) =>
           margin: 0,
         }}
       >
-        When enabled, OpenClaw compacts conversation context by flushing
-        important facts to memory files when the context reaches{" "}
-        <strong style={{ color: "var(--text-primary)" }}>
-          {(mf.softThresholdTokens / 1000).toFixed(0)}k {t("tokens")}
-        </strong>
-        . This prevents context window overflow while preserving key information.
+        {t("flushDescription").replace("{threshold}", (mf.softThresholdTokens / 1000).toFixed(0))}
       </p>
     </div>
   );
@@ -1181,6 +1179,11 @@ function translateHealthCheck(
     'large-files': 'largeFiles',
     'stale-evergreen': 'staleEvergreen',
     'total-size': 'totalSize',
+    'memory-md-lines': 'memoryMdLines',
+    'stale-daily-logs': 'staleDailyLogs',
+    'file-size': 'fileSize',
+    'decay-disabled': 'decayDisabled',
+    'no-config': 'noConfig',
   };
 
   const key = keyMap[check.id];
@@ -1380,8 +1383,7 @@ function StaleDailyLogsCard({ health, t }: { health: MemoryHealthSummary; t: (ke
           lineHeight: "var(--leading-relaxed)",
         }}
       >
-        {logs.length} {t("daily")}{logs.length !== 1 ? "s" : ""} older than 30 days ({formatBytes(totalSize)} total).
-        Review for patterns worth promoting to evergreen files, then delete the rest.
+        {t("staleLogsDescription").replace("{count}", String(logs.length)).replace("{size}", formatBytes(totalSize))}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
         {logs.slice(0, 10).map((log) => (
@@ -1533,6 +1535,7 @@ function EditingHintsPanel({ hints }: { hints: EditingHint[] }) {
 
 export default function MemoryPage() {
   const t = useTranslations("memory");
+  const locale = useLocale();
   const TABS = useTabs(t);
   const CATEGORY_LABELS = useCategoryLabels(t);
   
@@ -1586,7 +1589,7 @@ export default function MemoryPage() {
   const refresh = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetch("/api/memory")
+    fetch(`/api/memory?locale=${locale}`)
       .then((r) => {
         if (!r.ok) throw new Error("Failed to load memory files");
         return r.json();
@@ -1618,7 +1621,7 @@ export default function MemoryPage() {
         setError(err instanceof Error ? err.message : "Unknown error");
         setLoading(false);
       });
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     refresh();
@@ -1687,7 +1690,7 @@ export default function MemoryPage() {
     setAnalysisContent("");
     setChatMessages([]);
 
-    const prompt = buildMemoryHealthPrompt(files, config, status, stats, health);
+    const prompt = buildMemoryHealthPrompt(files, config, status, stats, health, locale);
 
     try {
       const res = await fetch(`/api/chat/${rootAgent.id}`, {
@@ -1729,7 +1732,7 @@ export default function MemoryPage() {
     } finally {
       setAnalysisStreaming(false);
     }
-  }, [rootAgent, analysisStreaming, files, config, status, stats, health]);
+  }, [rootAgent, analysisStreaming, files, config, status, stats, health, locale]);
 
   const sendChatMessage = useCallback(
     async (overrideText?: string) => {
@@ -1753,7 +1756,7 @@ export default function MemoryPage() {
       setChatMessages((prev) => [...prev, userMsg, assistantMsg]);
       setChatStreaming(true);
 
-      const prompt = buildMemoryHealthPrompt(files, config, status, stats, health);
+      const prompt = buildMemoryHealthPrompt(files, config, status, stats, health, locale);
       const allMessages = [...chatMessages, userMsg];
       const apiMessages = [
         { role: "user" as const, content: prompt },
@@ -1829,20 +1832,20 @@ export default function MemoryPage() {
         chatTextareaRef.current?.focus();
       }
     },
-    [chatInput, chatStreaming, rootAgent, chatMessages, analysisContent, files, config, status, stats, health],
+    [chatInput, chatStreaming, rootAgent, chatMessages, analysisContent, files, config, status, stats, health, locale],
   );
 
   const handleCheckAction = useCallback(
     (check: MemoryHealthCheck) => {
       if (!analysisOpen) setAnalysisOpen(true);
-      const prompt = buildCheckFixPrompt(check, files);
+      const prompt = buildCheckFixPrompt(check, files, locale);
       if (!analysisContent && !analysisStreaming) {
         runAnalysis();
         return;
       }
       sendChatMessage(prompt);
     },
-    [analysisOpen, analysisContent, analysisStreaming, runAnalysis, sendChatMessage, files],
+    [analysisOpen, analysisContent, analysisStreaming, runAnalysis, sendChatMessage, files, locale],
   );
 
   const handleViewFile = useCallback(
@@ -2549,9 +2552,9 @@ export default function MemoryPage() {
                             {chatMessages.length === 0 && (
                               <div style={{ padding: "8px 20px 4px", display: "flex", flexWrap: "wrap", gap: 6 }}>
                                 {[
-                                  "Show me the specific changes to make",
-                                  "What's the impact of not fixing this?",
-                                  "Help me write the new topic files",
+                                  t("suggestion.specificChanges"),
+                                  t("suggestion.impactOfNotFixing"),
+                                  t("suggestion.helpWriteFiles"),
                                 ].map((q) => (
                                   <button
                                     key={q}

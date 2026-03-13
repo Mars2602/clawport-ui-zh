@@ -1,7 +1,20 @@
 import type { CostSummary } from '@/lib/types'
 import { fmtCost } from './formatters'
 
-export function TopCrons({ jobCosts, jobName }: { jobCosts: CostSummary['jobCosts']; jobName: (id: string) => string }) {
+interface TopCronsLabels {
+  mostExpensiveCrons?: string
+  run?: string
+  runs?: string
+  avg?: string
+}
+
+export function TopCrons({ jobCosts, jobName, labels }: { jobCosts: CostSummary['jobCosts']; jobName: (id: string) => string; labels?: TopCronsLabels }) {
+  const l = {
+    mostExpensiveCrons: labels?.mostExpensiveCrons ?? 'Most Expensive Crons',
+    run: labels?.run ?? 'run',
+    runs: labels?.runs ?? 'runs',
+    avg: labels?.avg ?? 'avg',
+  }
   const top = jobCosts.slice(0, 3)
   if (top.length === 0) return null
 
@@ -13,7 +26,7 @@ export function TopCrons({ jobCosts, jobName }: { jobCosts: CostSummary['jobCost
         fontWeight: 'var(--weight-medium)',
         marginBottom: 'var(--space-3)',
       }}>
-        Most Expensive Crons
+        {l.mostExpensiveCrons}
       </div>
       <div className="top-crons-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
         {top.map((job) => (
@@ -48,9 +61,9 @@ export function TopCrons({ jobCosts, jobName }: { jobCosts: CostSummary['jobCost
               {fmtCost(job.totalCost)}
             </div>
             <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)' }}>
-              {job.runs} run{job.runs !== 1 ? 's' : ''}
+              {job.runs} {job.runs !== 1 ? l.runs : l.run}
               {' \u00b7 '}
-              avg {fmtCost(job.runs > 0 ? job.totalCost / job.runs : 0)}
+              {l.avg} {fmtCost(job.runs > 0 ? job.totalCost / job.runs : 0)}
             </div>
           </div>
         ))}

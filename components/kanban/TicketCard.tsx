@@ -5,14 +5,19 @@ import type { Agent } from '@/lib/types'
 import {
   KanbanTicket,
   PRIORITY_COLORS,
-  ROLE_LABELS,
 } from '@/lib/kanban/types'
 import { AgentAvatar } from '@/components/AgentAvatar'
 
-const PRIORITY_LABELS: Record<string, string> = {
+const DEFAULT_PRIORITY_LABELS: Record<string, string> = {
   low: 'Low',
   medium: 'Med',
   high: 'High',
+}
+
+const DEFAULT_ROLE_LABELS: Record<string, string> = {
+  'lead-dev': 'Lead Dev',
+  'ux-ui': 'UX/UI Lead',
+  qa: 'QA',
 }
 
 function relativeTime(ts: number): string {
@@ -27,14 +32,42 @@ function relativeTime(ts: number): string {
   return `${Math.floor(days / 30)}mo ago`
 }
 
+interface TicketCardLabels {
+  leadDev?: string
+  uxUi?: string
+  qa?: string
+  priorityLow?: string
+  priorityMedium?: string
+  priorityHigh?: string
+}
+
 interface TicketCardProps {
   ticket: KanbanTicket
   agent: Agent | null
   onClick: () => void
   isWorking?: boolean
+  labels?: TicketCardLabels
 }
 
-export function TicketCard({ ticket, agent, onClick, isWorking }: TicketCardProps) {
+export function TicketCard({ ticket, agent, onClick, isWorking, labels }: TicketCardProps) {
+  const l = {
+    priorityLow: labels?.priorityLow ?? 'Low',
+    priorityMedium: labels?.priorityMedium ?? 'Med',
+    priorityHigh: labels?.priorityHigh ?? 'High',
+    leadDev: labels?.leadDev ?? 'Lead Dev',
+    uxUi: labels?.uxUi ?? 'UX/UI Lead',
+    qa: labels?.qa ?? 'QA',
+  }
+  const priorityLabels = {
+    low: l.priorityLow,
+    medium: l.priorityMedium,
+    high: l.priorityHigh,
+  }
+  const roleLabels = {
+    'lead-dev': l.leadDev,
+    'ux-ui': l.uxUi,
+    qa: l.qa,
+  }
   const [isDragging, setIsDragging] = useState(false)
 
   function handleDragStart(e: React.DragEvent<HTMLDivElement>) {
@@ -128,7 +161,7 @@ export function TicketCard({ ticket, agent, onClick, isWorking }: TicketCardProp
               background: PRIORITY_COLORS[ticket.priority],
             }}
           />
-          {PRIORITY_LABELS[ticket.priority]}
+          {priorityLabels[ticket.priority]}
         </span>
         <span
           style={{
@@ -186,7 +219,7 @@ export function TicketCard({ ticket, agent, onClick, isWorking }: TicketCardProp
               lineHeight: 1.5,
             }}
           >
-            {ROLE_LABELS[ticket.assigneeRole]}
+            {roleLabels[ticket.assigneeRole ?? 'lead-dev']}
           </span>
         )}
 

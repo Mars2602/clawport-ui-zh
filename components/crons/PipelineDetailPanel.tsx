@@ -156,6 +156,8 @@ export function PipelineDetailPanel({ jobName, crons, agents, pipelines, onClose
     navigator.clipboard.writeText(cron.lastError).then(() => {
       setCopiedError(true)
       setTimeout(() => setCopiedError(false), 2000)
+    }).catch(() => {
+      // Clipboard write denied - ignore in non-HTTPS environments
     })
   }
 

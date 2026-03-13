@@ -13,6 +13,7 @@ interface KanbanColumnProps {
   onDrop: (ticketId: string, status: TicketStatus) => void
   onCreateTicket?: () => void
   renderTicket: (ticket: KanbanTicket) => React.ReactNode
+  noTicketsLabel?: string
 }
 
 export function KanbanColumn({
@@ -23,6 +24,7 @@ export function KanbanColumn({
   onDrop,
   onCreateTicket,
   renderTicket,
+  noTicketsLabel = 'No tickets',
 }: KanbanColumnProps) {
   const [isDragOver, setIsDragOver] = useState(false)
 
@@ -157,7 +159,7 @@ export function KanbanColumn({
               color: 'var(--text-tertiary)',
             }}
           >
-            No tickets
+            {noTicketsLabel}
           </div>
         )}
       </div>

@@ -49,6 +49,7 @@ export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) 
   const pathname = usePathname();
   const { settings } = useSettings();
   const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
   const NAV_ITEMS = useNavItems();
   const [agentCount, setAgentCount] = useState<number | null>(null);
   const [cronCount, setCronCount] = useState<number | null>(null);
@@ -135,7 +136,7 @@ export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) 
               fontWeight: hasErrors ? 600 : undefined,
             }}
           >
-            {hasErrors ? `${cronErrorCount} err` : cronCount}
+            {hasErrors ? `${cronErrorCount} ${tCommon('err')}` : cronCount}
           </span>
           {hasErrors && (
             <span
@@ -172,7 +173,7 @@ export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) 
             marginBottom: '2px',
           }}
         >
-          Workspace
+          {tCommon('workspace')}
         </div>
 
         <div className="flex flex-col gap-0.5">
@@ -263,7 +264,7 @@ export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) 
                   whiteSpace: 'nowrap',
                 }}
               >
-                {settings.operatorName ?? 'Operator'}
+                {settings.operatorName ?? tCommon('operator')}
               </div>
               <div
                 style={{
@@ -271,7 +272,7 @@ export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) 
                   color: 'var(--text-tertiary)',
                 }}
               >
-                Owner
+                {tCommon('owner')}
               </div>
             </div>
           </div>

@@ -46,11 +46,31 @@ function resolveIds(text: string, jobName: (id: string) => string): string {
   )
 }
 
-function InsightRow({ insight, jobName, onAction }: {
+interface OptimizationPanelLabels {
+  savePerPeriod?: string
+  howToFix?: string
+  optimizationScore?: string
+  potential?: string
+  insights?: string
+  showLess?: string
+  showAllInsights?: string
+  allClearNoIssues?: string
+  cache?: string
+  tiering?: string
+  anomaly?: string
+  efficiency?: string
+}
+
+function InsightRow({ insight, jobName, onAction, labels }: {
   insight: OptimizationInsight
   jobName: (id: string) => string
   onAction: (prompt: string) => void
+  labels?: OptimizationPanelLabels
 }) {
+  const l = {
+    savePerPeriod: labels?.savePerPeriod ?? 'Save per period',
+    howToFix: labels?.howToFix ?? 'How to fix',
+  }
   const color = SEV_COLORS[insight.severity]
   return (
     <div style={{
@@ -76,7 +96,7 @@ function InsightRow({ insight, jobName, onAction }: {
               fontSize: 11, fontWeight: 600, color: 'var(--system-green)',
               background: 'rgba(48,209,88,0.10)', padding: '1px 8px', borderRadius: 10,
             }}>
-              Save ~{fmtCost(insight.projectedSavings)}/period
+              {l.savePerPeriod} {fmtCost(insight.projectedSavings)}
             </span>
           )}
         </div>
@@ -100,26 +120,41 @@ function InsightRow({ insight, jobName, onAction }: {
         }}
       >
         <Zap size={10} />
-        How to fix
+        {l.howToFix}
       </button>
     </div>
   )
 }
 
 /** Unified optimization card: score + sub-scores + insights in one surface */
-export function OptimizationCard({ score, insights, totalSavings, jobName, onAction }: {
+export function OptimizationCard({ score, insights, totalSavings, jobName, onAction, labels }: {
   score: OptimizationScore
   insights: OptimizationInsight[]
   totalSavings: number
   jobName: (id: string) => string
   onAction: (prompt: string) => void
+  labels?: OptimizationPanelLabels
 }) {
+  const l = {
+    optimizationScore: labels?.optimizationScore ?? 'Optimization Score',
+    potential: labels?.potential ?? 'Potential',
+    insights: labels?.insights ?? 'Insights',
+    showLess: labels?.showLess ?? 'Show less',
+    showAllInsights: labels?.showAllInsights ?? 'Show all insights',
+    allClearNoIssues: labels?.allClearNoIssues ?? 'All clear -- no optimization issues detected',
+    cache: labels?.cache ?? 'Cache',
+    tiering: labels?.tiering ?? 'Tiering',
+    anomaly: labels?.anomaly ?? 'Anomaly',
+    efficiency: labels?.efficiency ?? 'Efficiency',
+    savePerPeriod: labels?.savePerPeriod ?? 'Save per period',
+    howToFix: labels?.howToFix ?? 'How to fix',
+  }
   const [expanded, setExpanded] = useState(false)
   const dims = [
-    ['Cache', score.cacheScore],
-    ['Tiering', score.tieringScore],
-    ['Anomaly', score.anomalyScore],
-    ['Efficiency', score.efficiencyScore],
+    [l.cache, score.cacheScore],
+    [l.tiering, score.tieringScore],
+    [l.anomaly, score.anomalyScore],
+    [l.efficiency, score.efficiencyScore],
   ] as [string, number][]
 
   return (
@@ -138,7 +173,7 @@ export function OptimizationCard({ score, insights, totalSavings, jobName, onAct
             fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
             color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: 10,
           }}>
-            Optimization Score
+            {l.optimizationScore}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '6px 16px' }}>
             {dims.map(([label, val]) => (
@@ -166,8 +201,8 @@ export function OptimizationCard({ score, insights, totalSavings, jobName, onAct
             fontSize: 12, fontWeight: 600, color: 'var(--system-green)',
             whiteSpace: 'nowrap', textAlign: 'center',
           }}>
-            <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.7, marginBottom: 2 }}>Potential</div>
-            {fmtCost(totalSavings)}/period
+            <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.7, marginBottom: 2 }}>{l.potential}</div>
+            {l.savePerPeriod} {fmtCost(totalSavings)}
           </div>
         )}
       </div>
@@ -180,10 +215,10 @@ export function OptimizationCard({ score, insights, totalSavings, jobName, onAct
             padding: '10px 20px 4px', fontSize: 11, fontWeight: 600,
             letterSpacing: '0.04em', color: 'var(--text-tertiary)', textTransform: 'uppercase',
           }}>
-            Insights
+            {l.insights}
           </div>
           {(expanded ? insights : insights.slice(0, 2)).map(insight => (
-            <InsightRow key={insight.id} insight={insight} jobName={jobName} onAction={onAction} />
+            <InsightRow key={insight.id} insight={insight} jobName={jobName} onAction={onAction} labels={labels} />
           ))}
           {insights.length > 2 && (
             <div style={{ padding: '4px 20px 12px' }}>
@@ -197,8 +232,8 @@ export function OptimizationCard({ score, insights, totalSavings, jobName, onAct
                 }}
               >
                 {expanded
-                  ? <><ChevronUp size={12} /> Show less</>
-                  : <><ChevronDown size={12} /> Show all {insights.length} insights</>}
+                  ? <><ChevronUp size={12} /> {l.showLess}</>
+                  : <><ChevronDown size={12} /> {l.showAllInsights} ({insights.length})</>}
               </button>
             </div>
           )}
@@ -211,7 +246,7 @@ export function OptimizationCard({ score, insights, totalSavings, jobName, onAct
             padding: '16px 20px', textAlign: 'center',
             fontSize: 13, color: 'var(--system-green)',
           }}>
-            All clear -- no optimization issues detected
+            {l.allClearNoIssues}
           </div>
         </>
       )}

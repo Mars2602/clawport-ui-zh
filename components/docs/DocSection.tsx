@@ -295,21 +295,37 @@ const CALLOUT_COLORS: Record<string, string> = {
   error: "var(--system-red)",
 };
 
-const CALLOUT_LABELS: Record<string, string> = {
+const CALLOUT_LABELS_EN: Record<string, string> = {
   tip: "Tip",
   warning: "Warning",
   note: "Note",
   error: "Error",
 };
 
+const CALLOUT_LABELS_ZH: Record<string, string> = {
+  tip: "提示",
+  warning: "警告",
+  note: "注意",
+  error: "错误",
+};
+
+export function getCalloutLabel(type: string, locale: string = "en"): string {
+  const labels = locale === "zh" ? CALLOUT_LABELS_ZH : CALLOUT_LABELS_EN;
+  return labels[type] ?? labels.note ?? "Note";
+}
+
 export function Callout({
   type = "note",
   children,
+  locale = "en",
 }: {
   type?: "tip" | "warning" | "note" | "error";
   children: ReactNode;
+  locale?: string;
 }) {
   const color = CALLOUT_COLORS[type] ?? "var(--system-blue)";
+  const labels = locale === "zh" ? CALLOUT_LABELS_ZH : CALLOUT_LABELS_EN;
+  const label = labels[type] ?? labels.note ?? "Note";
   return (
     <div
       style={{
@@ -330,7 +346,7 @@ export function Callout({
           marginBottom: "var(--space-1)",
         }}
       >
-        {CALLOUT_LABELS[type] ?? "Note"}
+        {label}
       </div>
       <div
         style={{

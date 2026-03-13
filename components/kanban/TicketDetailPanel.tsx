@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Maximize2, Minimize2 } from 'lucide-react'
 import type { Agent } from '@/lib/types'
 import type { KanbanTicket, TicketStatus, TicketPriority } from '@/lib/kanban/types'
-import { PRIORITY_COLORS, ROLE_LABELS, COLUMNS } from '@/lib/kanban/types'
+import { PRIORITY_COLORS, COLUMNS } from '@/lib/kanban/types'
 import { AgentAvatar } from '@/components/AgentAvatar'
 import { generateId } from '@/lib/id'
 
@@ -189,6 +189,12 @@ function StatusBadge({ status }: { status: TicketStatus }) {
 
 /* ── Main component ──────────────────────────────────── */
 
+interface TicketDetailPanelLabels {
+  leadDev?: string
+  uxUi?: string
+  qa?: string
+}
+
 interface TicketDetailPanelProps {
   ticket: KanbanTicket
   agent: Agent | null
@@ -196,6 +202,7 @@ interface TicketDetailPanelProps {
   onStatusChange: (status: TicketStatus) => void
   onDelete: () => void
   onRetryWork?: () => void
+  labels?: TicketDetailPanelLabels
 }
 
 export function TicketDetailPanel({
@@ -205,7 +212,18 @@ export function TicketDetailPanel({
   onStatusChange,
   onDelete,
   onRetryWork,
+  labels,
 }: TicketDetailPanelProps) {
+  const l = {
+    leadDev: labels?.leadDev ?? 'Lead Dev',
+    uxUi: labels?.uxUi ?? 'UX/UI Lead',
+    qa: labels?.qa ?? 'QA',
+  }
+  const roleLabels = {
+    'lead-dev': l.leadDev,
+    'ux-ui': l.uxUi,
+    qa: l.qa,
+  }
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
@@ -486,7 +504,7 @@ export function TicketDetailPanel({
                 <span>{agent.name}</span>
                 {ticket.assigneeRole && (
                   <span style={{ color: 'var(--text-tertiary)' }}>
-                    ({ROLE_LABELS[ticket.assigneeRole]})
+                    ({roleLabels[ticket.assigneeRole ?? 'lead-dev']})
                   </span>
                 )}
               </div>

@@ -25,9 +25,144 @@ interface CostChatMessage {
   isStreaming?: boolean
 }
 
+/* ── Labels interface ─────────────────────────────────────────── */
+
+interface CostsPageLabels {
+  title?: string
+  noData?: string
+  withCostData?: string
+  noCostData?: string
+  anomaly?: string
+  anomalies?: string
+  anomalyMedian?: string
+  totalEstimatedCost?: string
+  thisWeek?: string
+  lastWeek?: string
+  cacheSavings?: string
+  cacheTokens?: string
+  anomaliesLabel?: string
+  agentOptimizer?: string
+  aiAnalysisDesc?: string
+  analyzing?: string
+  analyze?: string
+  askAbout?: string
+  suggestionHaiku?: string
+  suggestion5Hour?: string
+  suggestionExpensive?: string
+  suggestionThinking?: string
+  followUpChanges?: string
+  followUpThinking?: string
+  followUpContext?: string
+  placeholderFollowUp?: string
+  send?: string
+  job?: string
+  runs?: string
+  input?: string
+  output?: string
+  cache?: string
+  estCost?: string
+  noJobsCostData?: string
+  perRunDetail?: string
+  run?: string
+  time?: string
+  model?: string
+  cost?: string
+  showAllRuns?: string
+  claudeCodeUsage?: string
+  fiveHourWindow?: string
+  resetsIn?: string
+  weeklyCap?: string
+  dailyEstimatedCost?: string
+  tokenBreakdown?: string
+  total?: string
+  mostExpensiveCrons?: string
+  avg?: string
+  optimizationScore?: string
+  potential?: string
+  insights?: string
+  showLess?: string
+  showAllInsights?: string
+  allClearNoIssues?: string
+  savePerPeriod?: string
+  howToFix?: string
+  cacheLabel?: string
+  tiering?: string
+  efficiency?: string
+  errorLoadCosts?: string
+  errorLoadCrons?: string
+  errorLoadAgents?: string
+  errorUnknown?: string
+}
+
 /* ── CostsPage ───────────────────────────────────────────────── */
 
-export function CostsPage() {
+export function CostsPage({ labels }: { labels?: CostsPageLabels }) {
+  const l = {
+    title: labels?.title ?? 'Costs & Optimization',
+    noData: labels?.noData ?? 'No data',
+    withCostData: labels?.withCostData ?? 'with cost data',
+    noCostData: labels?.noCostData ?? 'No cost data -- runs without usage metadata will not appear here.',
+    anomaly: labels?.anomaly ?? 'anomaly',
+    anomalies: labels?.anomalies ?? 'anomalies',
+    anomalyMedian: labels?.anomalyMedian ?? 'median',
+    totalEstimatedCost: labels?.totalEstimatedCost ?? 'Total Estimated Cost',
+    thisWeek: labels?.thisWeek ?? 'This Week',
+    lastWeek: labels?.lastWeek ?? 'last week',
+    cacheSavings: labels?.cacheSavings ?? 'Cache Savings',
+    cacheTokens: labels?.cacheTokens ?? 'cache tokens',
+    anomaliesLabel: labels?.anomaliesLabel ?? 'Anomalies',
+    agentOptimizer: labels?.agentOptimizer ?? 'Agent Optimizer',
+    aiAnalysisDesc: labels?.aiAnalysisDesc ?? 'AI-powered analysis of your agent costs and throughput',
+    analyzing: labels?.analyzing ?? 'Analyzing...',
+    analyze: labels?.analyze ?? 'Analyze',
+    askAbout: labels?.askAbout ?? 'Ask about',
+    suggestionHaiku: labels?.suggestionHaiku ?? 'Which agents should switch to Haiku?',
+    suggestion5Hour: labels?.suggestion5Hour ?? 'How do I reduce my 5-hour window usage?',
+    suggestionExpensive: labels?.suggestionExpensive ?? 'Show me my most expensive agent and how to fix it',
+    suggestionThinking: labels?.suggestionThinking ?? 'What thinking effort should each agent use?',
+    followUpChanges: labels?.followUpChanges ?? 'Show me the config changes',
+    followUpThinking: labels?.followUpThinking ?? 'Which agents need less thinking effort?',
+    followUpContext: labels?.followUpContext ?? 'How do I trim agent context?',
+    placeholderFollowUp: labels?.placeholderFollowUp ?? 'Ask a follow-up...',
+    send: labels?.send ?? 'Send',
+    job: labels?.job ?? 'Job',
+    runs: labels?.runs ?? 'Runs',
+    input: labels?.input ?? 'Input',
+    output: labels?.output ?? 'Output',
+    cache: labels?.cache ?? 'Cache',
+    estCost: labels?.estCost ?? 'Est. Cost',
+    noJobsCostData: labels?.noJobsCostData ?? 'No jobs with cost data',
+    perRunDetail: labels?.perRunDetail ?? 'Per-Run Detail',
+    run: labels?.run ?? 'Run',
+    time: labels?.time ?? 'Time',
+    model: labels?.model ?? 'Model',
+    cost: labels?.cost ?? 'Cost',
+    showAllRuns: labels?.showAllRuns ?? 'Show all runs',
+    claudeCodeUsage: labels?.claudeCodeUsage ?? 'Claude Code Usage',
+    fiveHourWindow: labels?.fiveHourWindow ?? '5-Hour Window',
+    resetsIn: labels?.resetsIn ?? 'Resets in',
+    weeklyCap: labels?.weeklyCap ?? 'Weekly Cap',
+    dailyEstimatedCost: labels?.dailyEstimatedCost ?? 'Daily Estimated Cost',
+    tokenBreakdown: labels?.tokenBreakdown ?? 'Token Breakdown',
+    total: labels?.total ?? 'total',
+    mostExpensiveCrons: labels?.mostExpensiveCrons ?? 'Most Expensive Crons',
+    avg: labels?.avg ?? 'avg',
+    optimizationScore: labels?.optimizationScore ?? 'Optimization Score',
+    potential: labels?.potential ?? 'Potential',
+    insights: labels?.insights ?? 'Insights',
+    showLess: labels?.showLess ?? 'Show less',
+    showAllInsights: labels?.showAllInsights ?? 'Show all {count} insights',
+    allClearNoIssues: labels?.allClearNoIssues ?? 'All clear -- no optimization issues detected',
+    savePerPeriod: labels?.savePerPeriod ?? 'Save per period',
+    howToFix: labels?.howToFix ?? 'How to fix',
+    cacheLabel: labels?.cacheLabel ?? 'Cache',
+    tiering: labels?.tiering ?? 'Tiering',
+    efficiency: labels?.efficiency ?? 'Efficiency',
+    errorLoadCosts: labels?.errorLoadCosts ?? 'Failed to load costs',
+    errorLoadCrons: labels?.errorLoadCrons ?? 'Failed to load crons',
+    errorLoadAgents: labels?.errorLoadAgents ?? 'Failed to load agents',
+    errorUnknown: labels?.errorUnknown ?? 'Unknown error',
+  }
   const [data, setData] = useState<CostSummary | null>(null)
   const [agents, setAgents] = useState<Agent[]>([])
   const [jobNames, setJobNames] = useState<Record<string, string>>({})
@@ -57,15 +192,15 @@ export function CostsPage() {
 
     Promise.all([
       fetch('/api/costs').then(r => {
-        if (!r.ok) throw new Error('Failed to load costs')
+        if (!r.ok) throw new Error(l.errorLoadCosts)
         return r.json()
       }),
       fetch('/api/crons').then(r => {
-        if (!r.ok) throw new Error('Failed to load crons')
+        if (!r.ok) throw new Error(l.errorLoadCrons)
         return r.json()
       }),
       fetch('/api/agents').then(r => {
-        if (!r.ok) throw new Error('Failed to load agents')
+        if (!r.ok) throw new Error(l.errorLoadAgents)
         return r.json()
       }),
     ])
@@ -80,7 +215,7 @@ export function CostsPage() {
         setLoading(false)
       })
       .catch(err => {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : l.errorUnknown)
         setLoading(false)
       })
   }, [])
@@ -270,15 +405,15 @@ export function CostsPage() {
           letterSpacing: '-0.5px',
           lineHeight: 'var(--leading-tight)',
         }}>
-          Costs & Optimization
+          {l.title}
         </h1>
         {!loading && data && (
           <p style={{ fontSize: 'var(--text-footnote)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)' }}>
             {dateRange
               ? `${dateRange.oldest.toLocaleDateString()} - ${dateRange.newest.toLocaleDateString()}`
-              : 'No data'}
+              : l.noData}
             {' \u00b7 '}
-            {data.runCosts.length} run{data.runCosts.length !== 1 ? 's' : ''} with cost data
+            {data.runCosts.length} run{data.runCosts.length !== 1 ? 's' : ''} {l.withCostData}
           </p>
         )}
       </header>
@@ -325,7 +460,7 @@ export function CostsPage() {
             color: 'var(--text-tertiary)',
             fontSize: 'var(--text-footnote)',
           }}>
-            No cost data -- runs without usage metadata will not appear here.
+            {l.noCostData}
           </div>
         )}
 
@@ -347,12 +482,12 @@ export function CostsPage() {
               }}>
                 <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
                 <div>
-                  <strong>{data.anomalies.length} anomal{data.anomalies.length === 1 ? 'y' : 'ies'}</strong>
+                  <strong>{data.anomalies.length} {data.anomalies.length === 1 ? l.anomaly : l.anomalies}</strong>
                   {' -- '}
                   {data.anomalies.slice(0, 3).map((a, i) => (
                     <span key={i}>
                       {i > 0 && ', '}
-                      {jobName(a.jobId)} ({a.ratio.toFixed(1)}x median)
+                      {jobName(a.jobId)} ({a.ratio.toFixed(1)}x {l.anomalyMedian})
                     </span>
                   ))}
                 </div>
@@ -360,12 +495,17 @@ export function CostsPage() {
             )}
 
             {/* ── Claude Code Usage ──────────────────────────────── */}
-            {claudeUsage && <ClaudeUsageRow usage={claudeUsage} />}
+            {claudeUsage && <ClaudeUsageRow usage={claudeUsage} labels={{
+              claudeCodeUsage: l.claudeCodeUsage,
+              fiveHourWindow: l.fiveHourWindow,
+              resetsIn: l.resetsIn,
+              weeklyCap: l.weeklyCap,
+            }} />}
 
             {/* ── Summary cards ────────────────────────────────── */}
             <div className="costs-summary-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
               {/* Total Estimated Cost */}
-              <SummaryCard label="Total Estimated Cost">
+              <SummaryCard label={l.totalEstimatedCost}>
                 <div className="flex items-center" style={{ gap: 'var(--space-2)' }}>
                   <span style={{ fontSize: 'var(--text-title2)', color: 'var(--text-primary)', fontWeight: 'var(--weight-bold)', fontVariantNumeric: 'tabular-nums' }}>
                     {fmtCost(data.totalCost)}
@@ -392,27 +532,27 @@ export function CostsPage() {
               </SummaryCard>
 
               {/* This Week vs Last Week */}
-              <SummaryCard label="This Week">
+              <SummaryCard label={l.thisWeek}>
                 <div style={{ fontSize: 'var(--text-title2)', color: 'var(--text-primary)', fontWeight: 'var(--weight-bold)', fontVariantNumeric: 'tabular-nums' }}>
                   {fmtCost(data.weekOverWeek.thisWeek)}
                 </div>
                 <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginTop: 2 }}>
-                  last week: {fmtCost(data.weekOverWeek.lastWeek)}
+                  {l.lastWeek}: {fmtCost(data.weekOverWeek.lastWeek)}
                 </div>
               </SummaryCard>
 
               {/* Cache Savings */}
-              <SummaryCard label="Cache Savings">
+              <SummaryCard label={l.cacheSavings}>
                 <div style={{ fontSize: 'var(--text-title2)', color: 'var(--system-green)', fontWeight: 'var(--weight-bold)', fontVariantNumeric: 'tabular-nums' }}>
                   {fmtCost(data.cacheSavings.estimatedSavings)}
                 </div>
                 <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginTop: 2 }}>
-                  {fmtTokens(data.cacheSavings.cacheTokens)} cache tokens
+                  {fmtTokens(data.cacheSavings.cacheTokens)} {l.cacheTokens}
                 </div>
               </SummaryCard>
 
               {/* Anomalies */}
-              <SummaryCard label="Anomalies">
+              <SummaryCard label={l.anomaliesLabel}>
                 <div className="flex items-center" style={{ gap: 'var(--space-2)' }}>
                   {data.anomalies.length > 0 && (
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--system-orange)', flexShrink: 0 }} />
@@ -435,6 +575,19 @@ export function CostsPage() {
               totalSavings={totalProjectedSavings}
               jobName={jobName}
               onAction={handleInsightAction}
+              labels={{
+                optimizationScore: l.optimizationScore,
+                potential: l.potential,
+                insights: l.insights,
+                showLess: l.showLess,
+                showAllInsights: l.showAllInsights,
+                allClearNoIssues: l.allClearNoIssues,
+                cache: l.cacheLabel,
+                tiering: l.tiering,
+                efficiency: l.efficiency,
+                savePerPeriod: l.savePerPeriod,
+                howToFix: l.howToFix,
+              }}
             />
 
             {/* ── Agent Optimizer ─────────────────────────────────── */}
@@ -454,10 +607,10 @@ export function CostsPage() {
                 <Activity size={18} style={{ color: 'var(--accent)', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Agent Optimizer
+                    {l.agentOptimizer}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                    AI-powered analysis of your agent costs and throughput
+                    {l.aiAnalysisDesc}
                   </div>
                 </div>
                 {analysisStreaming && (
@@ -469,7 +622,7 @@ export function CostsPage() {
                       width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)',
                       animation: 'pulse 1.2s infinite',
                     }} />
-                    Analyzing...
+                    {l.analyzing}
                   </span>
                 )}
                 {!analysisOpen && !analysisContent && !analysisStreaming && (
@@ -483,7 +636,7 @@ export function CostsPage() {
                       border: 'none', cursor: 'pointer',
                     }}
                   >
-                    Analyze
+                    {l.analyze}
                   </button>
                 )}
                 {(analysisOpen || analysisContent) && (
@@ -539,14 +692,14 @@ export function CostsPage() {
                   {!analysisContent && !analysisStreaming && (
                     <div style={{ padding: '12px 20px 16px' }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>
-                        Ask about
+                        {l.askAbout}
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {[
-                          'Which agents should switch to Haiku?',
-                          'How do I reduce my 5-hour window usage?',
-                          'Show me my most expensive agent and how to fix it',
-                          'What thinking effort should each agent use?',
+                          l.suggestionHaiku,
+                          l.suggestion5Hour,
+                          l.suggestionExpensive,
+                          l.suggestionThinking,
                         ].map(q => (
                           <button
                             key={q}
@@ -622,9 +775,9 @@ export function CostsPage() {
                       {chatMessages.length === 0 && (
                         <div style={{ padding: '8px 20px 4px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                           {[
-                            'Show me the config changes',
-                            'Which agents need less thinking effort?',
-                            'How do I trim agent context?',
+                            l.followUpChanges,
+                            l.followUpThinking,
+                            l.followUpContext,
                           ].map(q => (
                             <button
                               key={q}
@@ -660,7 +813,7 @@ export function CostsPage() {
                               sendChatMessage()
                             }
                           }}
-                          placeholder="Ask a follow-up..."
+                          placeholder={l.placeholderFollowUp}
                           disabled={chatStreaming}
                           rows={1}
                           style={{
@@ -692,7 +845,7 @@ export function CostsPage() {
                             opacity: chatStreaming || !chatInput.trim() ? 0.5 : 1,
                           }}
                         >
-                          Send
+                          {l.send}
                         </button>
                       </div>
                     </>
@@ -702,12 +855,12 @@ export function CostsPage() {
             </div>
 
             {/* ── Most Expensive Crons ───────────────────────────── */}
-            <TopCrons jobCosts={data.jobCosts} jobName={jobName} />
+            <TopCrons jobCosts={data.jobCosts} jobName={jobName} labels={{ mostExpensiveCrons: l.mostExpensiveCrons, avg: l.avg }} />
 
             {/* ── Charts row: daily cost + token donut ────────────── */}
             <div className="charts-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
-              <DailyCostChart dailyCosts={data.dailyCosts} />
-              <TokenDonut data={data} />
+              <DailyCostChart dailyCosts={data.dailyCosts} labels={{ dailyEstimatedCost: l.dailyEstimatedCost }} />
+              <TokenDonut data={data} labels={{ tokenBreakdown: l.tokenBreakdown, total: l.total, input: l.input, output: l.output, cache: l.cache }} />
             </div>
 
             {/* ── Job cost table ──────────────────────────────────── */}
@@ -726,17 +879,17 @@ export function CostsPage() {
                 fontWeight: 'var(--weight-medium)',
                 gap: 'var(--space-3)',
               }}>
-                <span style={{ flex: 2, minWidth: 0 }}>Job</span>
-                <span style={{ width: 50, textAlign: 'right' }}>Runs</span>
-                <span style={{ width: 80, textAlign: 'right' }}>Input</span>
-                <span style={{ width: 80, textAlign: 'right' }}>Output</span>
-                <span className="hidden-mobile" style={{ width: 80, textAlign: 'right' }}>Cache</span>
-                <span style={{ width: 80, textAlign: 'right' }}>Est. Cost</span>
+                <span style={{ flex: 2, minWidth: 0 }}>{l.job}</span>
+                <span style={{ width: 50, textAlign: 'right' }}>{l.runs}</span>
+                <span style={{ width: 80, textAlign: 'right' }}>{l.input}</span>
+                <span style={{ width: 80, textAlign: 'right' }}>{l.output}</span>
+                <span className="hidden-mobile" style={{ width: 80, textAlign: 'right' }}>{l.cache}</span>
+                <span style={{ width: 80, textAlign: 'right' }}>{l.estCost}</span>
               </div>
 
               {data.jobCosts.length === 0 ? (
                 <div style={{ padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 'var(--text-footnote)' }}>
-                  No jobs with cost data
+                  {l.noJobsCostData}
                 </div>
               ) : (
                 data.jobCosts.map((job, i) => (
@@ -797,7 +950,19 @@ export function CostsPage() {
             )}
 
             {/* ── Per-run detail table ────────────────────────────── */}
-            <RunDetailTable runCosts={data.runCosts} jobName={jobName} />
+            <RunDetailTable runCosts={data.runCosts} jobName={jobName} labels={{
+              perRunDetail: l.perRunDetail,
+              run: l.run,
+              runs: l.runs,
+              time: l.time,
+              job: l.job,
+              model: l.model,
+              input: l.input,
+              output: l.output,
+              cache: l.cache,
+              cost: l.cost,
+              showAllRuns: l.showAllRuns,
+            }} />
           </>
         )}
       </div>

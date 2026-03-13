@@ -77,6 +77,8 @@ function CodeBlock({ code, keyProp }: { code: string; keyProp: number }) {
     navigator.clipboard.writeText(code).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
+    }).catch(() => {
+      // Clipboard write denied - ignore in non-HTTPS environments
     })
   }
 

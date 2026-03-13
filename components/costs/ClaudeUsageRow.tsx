@@ -28,7 +28,7 @@ function UsageRing({ pct, size = 56 }: { pct: number; size?: number }) {
   )
 }
 
-function useCountdown(resetsAt: string | null): string {
+function useCountdown(resetsAt: string | null, labels: { defaultValue?: string; now?: string } = {}): string {
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -37,9 +37,9 @@ function useCountdown(resetsAt: string | null): string {
     return () => clearInterval(id)
   }, [resetsAt])
 
-  if (!resetsAt) return '--'
+  if (!resetsAt) return labels.defaultValue ?? '--'
   const diff = new Date(resetsAt).getTime() - now
-  if (diff <= 0) return 'now'
+  if (diff <= 0) return labels.now ?? 'now'
   const h = Math.floor(diff / 3_600_000)
   const m = Math.floor((diff % 3_600_000) / 60_000)
   if (h > 0) return `${h}h ${m}m`
@@ -47,14 +47,33 @@ function useCountdown(resetsAt: string | null): string {
   return `${m}m ${s}s`
 }
 
-function fmtResetDay(resetsAt: string | null): string {
+function fmtResetDay(resetsAt: string | null, label: string = 'Resets {date}'): string {
   if (!resetsAt) return '--'
-  return `Resets ${new Date(resetsAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}`
+  return label.replace('{date}', new Date(resetsAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }))
 }
 
-export function ClaudeUsageRow({ usage }: { usage: ClaudeCodeUsage }) {
-  const fiveHourCountdown = useCountdown(usage.fiveHour.resetsAt)
-  const weeklyResetLabel = fmtResetDay(usage.sevenDay.resetsAt)
+interface ClaudeUsageRowLabels {
+  claudeCodeUsage?: string
+  fiveHourWindow?: string
+  resetsIn?: string
+  weeklyCap?: string
+  resets?: string
+  defaultValue?: string
+  now?: string
+}
+
+export function ClaudeUsageRow({ usage, labels }: { usage: ClaudeCodeUsage; labels?: ClaudeUsageRowLabels }) {
+  const l = {
+    claudeCodeUsage: labels?.claudeCodeUsage ?? 'Claude Code Usage',
+    fiveHourWindow: labels?.fiveHourWindow ?? '5-Hour Window',
+    resetsIn: labels?.resetsIn ?? 'Resets in',
+    weeklyCap: labels?.weeklyCap ?? 'Weekly Cap',
+    resets: labels?.resets ?? 'Resets {date}',
+    defaultValue: labels?.defaultValue ?? '--',
+    now: labels?.now ?? 'now',
+  }
+  const fiveHourCountdown = useCountdown(usage.fiveHour.resetsAt, { defaultValue: l.defaultValue, now: l.now })
+  const weeklyResetLabel = fmtResetDay(usage.sevenDay.resetsAt, l.resets)
 
   return (
     <div style={{ marginBottom: 'var(--space-4)' }}>
@@ -63,7 +82,7 @@ export function ClaudeUsageRow({ usage }: { usage: ClaudeCodeUsage }) {
         fontWeight: 'var(--weight-medium)', marginBottom: 'var(--space-3)',
       }}>
         <Cpu size={12} />
-        Claude Code Usage
+        {l.claudeCodeUsage}
       </div>
       <div className="usage-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
         {/* 5-Hour Window */}
@@ -80,7 +99,7 @@ export function ClaudeUsageRow({ usage }: { usage: ClaudeCodeUsage }) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="flex items-center" style={{ gap: 6 }}>
               <span style={{ fontSize: 'var(--text-footnote)', fontWeight: 600, color: 'var(--text-primary)' }}>
-                5-Hour Window
+                {l.fiveHourWindow}
               </span>
               {usage.fiveHour.utilization >= 80 && (
                 <span className="usage-pulse" style={{
@@ -91,7 +110,7 @@ export function ClaudeUsageRow({ usage }: { usage: ClaudeCodeUsage }) {
               )}
             </div>
             <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
-              Resets in {fiveHourCountdown}
+              {l.resetsIn} {fiveHourCountdown}
             </div>
           </div>
         </div>
@@ -110,7 +129,7 @@ export function ClaudeUsageRow({ usage }: { usage: ClaudeCodeUsage }) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="flex items-center" style={{ gap: 6 }}>
               <span style={{ fontSize: 'var(--text-footnote)', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Weekly Cap
+                {l.weeklyCap}
               </span>
               {usage.sevenDay.utilization >= 80 && (
                 <span className="usage-pulse" style={{

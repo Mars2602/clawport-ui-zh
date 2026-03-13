@@ -1,7 +1,77 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { CostsPage } from '@/components/costs/CostsPage'
 
 export default function CostsRoute() {
-  return <CostsPage />
+  const t = useTranslations('costs')
+
+  const labels = {
+    title: t('title'),
+    noData: t('noData'),
+    withCostData: t('withCostData'),
+    noCostData: t('noCostData'),
+    anomaly: t('anomaly'),
+    anomalies: t('anomalies'),
+    anomalyMedian: t('anomalyMedian'),
+    totalEstimatedCost: t('totalEstimatedCost'),
+    thisWeek: t('thisWeek'),
+    lastWeek: t('lastWeek'),
+    cacheSavings: t('cacheSavings'),
+    cacheTokens: t('cacheTokens'),
+    anomaliesLabel: t('anomaliesLabel'),
+    agentOptimizer: t('agentOptimizer'),
+    aiAnalysisDesc: t('aiAnalysisDesc'),
+    analyzing: t('analyzing'),
+    analyze: t('analyze'),
+    askAbout: t('askAbout'),
+    suggestionHaiku: t('suggestionHaiku'),
+    suggestion5Hour: t('suggestion5Hour'),
+    suggestionExpensive: t('suggestionExpensive'),
+    suggestionThinking: t('suggestionThinking'),
+    followUpChanges: t('followUpChanges'),
+    followUpThinking: t('followUpThinking'),
+    followUpContext: t('followUpContext'),
+    placeholderFollowUp: t('placeholderFollowUp'),
+    send: t('send'),
+    job: t('job'),
+    runs: t('runs'),
+    input: t('input'),
+    output: t('output'),
+    cache: t('cache'),
+    estCost: t('estCost'),
+    noJobsCostData: t('noJobsCostData'),
+    perRunDetail: t('perRunDetail'),
+    run: t('run'),
+    time: t('time'),
+    model: t('model'),
+    cost: t('cost'),
+    showAllRuns: t('showAllRuns'),
+    claudeCodeUsage: t('claudeCodeUsage'),
+    fiveHourWindow: t('fiveHourWindow'),
+    resetsIn: t('resetsIn'),
+    weeklyCap: t('weeklyCap'),
+    dailyEstimatedCost: t('dailyEstimatedCost'),
+    tokenBreakdown: t('tokenBreakdown'),
+    total: t('total'),
+    mostExpensiveCrons: t('mostExpensiveCrons'),
+    avg: t('avg'),
+    optimizationScore: t('optimizationScore'),
+    potential: t('potential'),
+    insights: t('insights'),
+    showLess: t('showLess'),
+    showAllInsights: t('showAllInsights'),
+    allClearNoIssues: t('allClearNoIssues'),
+    savePerPeriod: t('savePerPeriod'),
+    howToFix: t('howToFix'),
+    cacheLabel: t('cache'),
+    tiering: t('tiering'),
+    efficiency: t('efficiency'),
+    errorLoadCosts: t('errorLoadCosts'),
+    errorLoadCrons: t('errorLoadCrons'),
+    errorLoadAgents: t('errorLoadAgents'),
+    errorUnknown: t('errorUnknown'),
+  }
+
+  return <CostsPage labels={labels} />
 }

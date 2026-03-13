@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations, useLocale } from "next-intl"
 import type { Agent, CronJob } from "@/lib/types"
 import { buildTeams } from "@/lib/teams"
 import { AgentAvatar } from "@/components/AgentAvatar"
@@ -23,11 +24,15 @@ function AgentCard({
   crons,
   selected,
   onSelect,
+  t,
+  isZh,
 }: {
   agent: Agent
   crons: CronJob[]
   selected: boolean
   onSelect: () => void
+  t: (key: string) => string
+  isZh: boolean
 }) {
   const agentCrons = crons.filter((c) => c.agentId === agent.id)
   const cronStatus = worstStatus(agentCrons.map((c) => c.status))
@@ -142,7 +147,10 @@ function AgentCard({
                 display: "inline-block",
               }}
             />
-            {agentCrons.length} cron{agentCrons.length !== 1 ? "s" : ""}
+            {isZh 
+              ? `${agentCrons.length} ${t('crons')}`
+              : `${agentCrons.length} ${agentCrons.length !== 1 ? t('crons') : t('cron')}`
+            }
           </span>
         )}
         {agent.tools.length > 0 && (
@@ -156,7 +164,10 @@ function AgentCard({
               borderRadius: 10,
             }}
           >
-            {agent.tools.length} tools
+            {isZh
+              ? `${agent.tools.length} ${t('tools')}`
+              : `${agent.tools.length} ${agent.tools.length !== 1 ? t('tools') : t('tool')}`
+            }
           </span>
         )}
       </div>
@@ -170,12 +181,16 @@ function TeamSection({
   count,
   errorCount,
   children,
+  t,
+  isZh,
 }: {
   label: string
   icon: React.ReactNode
   count: number
   errorCount: number
   children: React.ReactNode
+  t: (key: string) => string
+  isZh: boolean
 }) {
   return (
     <div
@@ -217,10 +232,13 @@ function TeamSection({
             marginLeft: "auto",
           }}
         >
-          {count} agent{count !== 1 ? "s" : ""}
+          {isZh 
+            ? `${count} ${t('agents')}`
+            : `${count} ${count !== 1 ? t('agents') : t('agent')}`
+          }
           {errorCount > 0 && (
             <span style={{ color: "var(--system-red)", marginLeft: 6 }}>
-              {errorCount} err
+              {errorCount} {t('err')}
             </span>
           )}
         </span>
@@ -232,6 +250,9 @@ function TeamSection({
 
 export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps) {
   const { root, teams, soloOps } = buildTeams(agents)
+  const t = useTranslations('common')
+  const locale = useLocale()
+  const isZh = locale === 'zh'
 
   const totalCrons = crons.length
   const healthyCrons = crons.filter((c) => c.status === "ok").length
@@ -344,7 +365,7 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                   marginTop: 2,
                 }}
               >
-                agents
+                {t('agents')}
               </div>
             </div>
             <div
@@ -372,7 +393,7 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                   marginTop: 2,
                 }}
               >
-                crons
+                {t('crons')}
               </div>
             </div>
             <div
@@ -400,7 +421,7 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                   marginTop: 2,
                 }}
               >
-                health
+                {t('health')}
               </div>
             </div>
           </div>
@@ -425,16 +446,20 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
           return (
             <TeamSection
               key={team.manager.id}
-              label={`Team ${team.manager.name}`}
+              label={`${t('team')} ${team.manager.name}`}
               icon={<AgentAvatar agent={team.manager} size={22} borderRadius={6} />}
               count={1 + team.members.length}
               errorCount={teamErrors}
+              t={t}
+              isZh={isZh}
             >
               <AgentCard
                 agent={team.manager}
                 crons={crons}
                 selected={selectedId === team.manager.id}
                 onSelect={() => onSelect(team.manager)}
+                t={t}
+                isZh={isZh}
               />
               {team.members.map((m) => (
                 <AgentCard
@@ -443,6 +468,8 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                   crons={crons}
                   selected={selectedId === m.id}
                   onSelect={() => onSelect(m)}
+                  t={t}
+                  isZh={isZh}
                 />
               ))}
             </TeamSection>
@@ -452,7 +479,7 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
         {/* Solo Ops column */}
         {soloOps.length > 0 && (
           <TeamSection
-            label="Solo Ops"
+            label={t('soloOps')}
             icon={
               <span
                 style={{
@@ -476,6 +503,8 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                 (c) => soloOps.some((a) => a.id === c.agentId) && c.status === "error",
               ).length
             }
+            t={t}
+            isZh={isZh}
           >
             {soloOps.map((a) => (
               <AgentCard
@@ -484,6 +513,8 @@ export function GridView({ agents, crons, selectedId, onSelect }: GridViewProps)
                 crons={crons}
                 selected={selectedId === a.id}
                 onSelect={() => onSelect(a)}
+                t={t}
+                isZh={isZh}
               />
             ))}
           </TeamSection>

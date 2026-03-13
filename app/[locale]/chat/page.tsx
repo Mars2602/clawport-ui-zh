@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import type { Agent } from '@/lib/types'
 import { AgentList, AgentListMobile } from '@/components/chat/AgentList'
 import { ConversationView } from '@/components/chat/ConversationView'
@@ -13,11 +14,21 @@ import {
 function MessengerApp() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('chat')
   const [agents, setAgents] = useState<Agent[]>([])
   const [conversations, setConversations] = useState<ConversationStore>({})
   const [activeAgentId, setActiveAgentId] = useState<string | null>(searchParams.get('agent'))
   const [loading, setLoading] = useState(true)
   const [mobileShowConversation, setMobileShowConversation] = useState(!!searchParams.get('agent'))
+
+  const agentListLabels = {
+    title: t('messages'),
+    searchPlaceholder: t('searchAgents'),
+    noAgentsMatch: t('noAgentsMatch'),
+    startConversation: t('startConversation'),
+    timeNow: t('timeNow'),
+    timeMinutes: t('timeMinutes'),
+  }
 
   // Load agents
   useEffect(() => {
@@ -148,6 +159,7 @@ function MessengerApp() {
         activeId={activeAgentId}
         onSelect={handleSelectAgent}
         loading={loading}
+        labels={agentListLabels}
       />
 
       {/* Mobile agent list — shown when no conversation selected */}
@@ -163,6 +175,7 @@ function MessengerApp() {
           conversations={conversations}
           onSelect={handleSelectAgent}
           loading={loading}
+          labels={agentListLabels}
         />
       </div>
 
@@ -208,6 +221,7 @@ function MessengerApp() {
 }
 
 function EmptyState() {
+  const t = useTranslations('chat')
   return (
     <div style={{
       flex: 1,
@@ -230,7 +244,7 @@ function EmptyState() {
         color: 'var(--text-primary)',
         letterSpacing: '-0.3px',
       }}>
-        ClawPort Messages
+        {t('emptyTitle')}
       </div>
       <div style={{
         fontSize: 'var(--text-subheadline)',
@@ -238,14 +252,14 @@ function EmptyState() {
         textAlign: 'center',
         lineHeight: 'var(--leading-relaxed)',
       }}>
-        Select an agent from the sidebar to start chatting
+        {t('emptyDesc')}
       </div>
       <div style={{
         fontSize: 'var(--text-caption1)',
         color: 'var(--text-quaternary)',
         marginTop: 'var(--space-2)',
       }}>
-        Press Cmd+K to search agents
+        {t('emptyHint')}
       </div>
     </div>
   )

@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { Map, MessageSquare, Columns3, Clock, Brain, Keyboard, AlertCircle, Loader2, CheckCircle2, XCircle, ArrowLeft, ArrowRight, Rocket, RotateCcw } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import { Map, MessageSquare, Columns3, Clock, Brain, Keyboard, AlertCircle, Loader2, CheckCircle2, XCircle, ArrowLeft, ArrowRight, Rocket, RotateCcw, Check } from 'lucide-react'
 import { useSettings } from '@/app/settings-provider'
 import { useTheme } from '@/app/providers'
 import { THEMES } from '@/lib/themes'
@@ -73,8 +73,16 @@ interface OnboardingWizardProps {
   onClose?: () => void
 }
 
+const THEME_LABELS: Record<string, { en: string; zh: string }> = {
+  dark: { en: 'Dark', zh: '深色' },
+  glass: { en: 'Glass', zh: '毛玻璃' },
+  color: { en: 'Color', zh: '彩色' },
+  light: { en: 'Light', zh: '浅色' },
+}
+
 export function OnboardingWizard({ forceOpen, onClose }: OnboardingWizardProps) {
   const t = useTranslations()
+  const locale = useLocale()
   const {
     settings,
     setPortalName,
@@ -83,6 +91,7 @@ export function OnboardingWizard({ forceOpen, onClose }: OnboardingWizardProps) 
     setAccentColor,
   } = useSettings()
   const { theme, setTheme } = useTheme()
+  const getThemeLabel = (id: string) => THEME_LABELS[id]?.[locale as 'en' | 'zh'] ?? THEME_LABELS[id]?.en ?? id
 
   const [visible, setVisible] = useState(false)
   const [step, setStep] = useState(0)
@@ -738,12 +747,13 @@ export function OnboardingWizard({ forceOpen, onClose }: OnboardingWizardProps) 
                 gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                 gap: 'var(--space-3)',
               }}>
-                {THEMES.map(t => {
-                  const isActive = theme === t.id
+                {THEMES.map(themeItem => {
+                  const isActive = theme === themeItem.id
+                  const label = getThemeLabel(themeItem.id)
                   return (
                     <button
-                      key={t.id}
-                      onClick={() => setTheme(t.id)}
+                      key={themeItem.id}
+                      onClick={() => setTheme(themeItem.id)}
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -757,13 +767,13 @@ export function OnboardingWizard({ forceOpen, onClose }: OnboardingWizardProps) 
                         transition: 'all 150ms var(--ease-smooth)',
                       }}
                     >
-                      <span style={{ fontSize: 28 }}>{t.emoji}</span>
+                      <span style={{ fontSize: 28 }}>{themeItem.emoji}</span>
                       <span style={{
                         fontSize: 'var(--text-footnote)',
                         fontWeight: isActive ? 'var(--weight-semibold)' : 'var(--weight-medium)',
                         color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                       }}>
-                        {t.label}
+                        {label}
                       </span>
                     </button>
                   )

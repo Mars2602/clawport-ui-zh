@@ -1,16 +1,42 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import type { LogEntry, LogFilter, LogSummary } from '@/lib/types'
-import { timeAgo } from '@/lib/cron-utils'
+import { timeAgo as timeAgoEn } from '@/lib/cron-utils'
 import { Skeleton } from '@/components/ui/skeleton'
+
+/* ── Localized timeAgo ─────────────────────────────────────────── */
+
+function timeAgoZh(dateStr: string): string {
+  if (!dateStr) return "从未"
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return "—"
+  const diff = Date.now() - d.getTime()
+  const mins = Math.floor(diff / 60000)
+  const hrs = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  if (diff < 0) {
+    const absDiff = Math.abs(diff)
+    const m = Math.floor(absDiff / 60000)
+    const h = Math.floor(absDiff / 3600000)
+    const dy = Math.floor(absDiff / 86400000)
+    if (m < 60) return `${m}分钟后`
+    if (h < 24) return `${h}小时后`
+    return `${dy}天后`
+  }
+  if (mins < 1) return "刚刚"
+  if (mins < 60) return `${mins}分钟前`
+  if (hrs < 24) return `${hrs}小时前`
+  return `${days}天前`
+}
 import { RefreshCw, Radio } from 'lucide-react'
 import { ErrorState } from '@/components/ErrorState'
 import { LogBrowser } from '@/components/activity/LogBrowser'
 
 /* ── Summary Cards ─────────────────────────────────────────────── */
 
-function TotalCard({ count }: { count: number }) {
+function TotalCard({ count, t }: { count: number; t: (key: string) => string }) {
   return (
     <div style={{
       background: 'var(--material-regular)',
@@ -19,7 +45,7 @@ function TotalCard({ count }: { count: number }) {
       padding: 'var(--space-4)',
     }}>
       <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', fontWeight: 'var(--weight-medium)', marginBottom: 'var(--space-1)' }}>
-        Total Events
+        {t("totalEvents")}
       </div>
       <div style={{ fontSize: 'var(--text-title2)', color: 'var(--text-primary)', fontWeight: 'var(--weight-bold)' }}>
         {count}
@@ -28,7 +54,7 @@ function TotalCard({ count }: { count: number }) {
   )
 }
 
-function ErrorCard({ count }: { count: number }) {
+function ErrorCard({ count, t }: { count: number; t: (key: string) => string }) {
   const hasErrors = count > 0
   return (
     <div style={{
@@ -38,7 +64,7 @@ function ErrorCard({ count }: { count: number }) {
       padding: 'var(--space-4)',
     }}>
       <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', fontWeight: 'var(--weight-medium)', marginBottom: 'var(--space-1)' }}>
-        Errors
+        {t("errors")}
       </div>
       <div className="flex items-center" style={{ gap: 'var(--space-2)' }}>
         {hasErrors && (
@@ -56,7 +82,7 @@ function ErrorCard({ count }: { count: number }) {
   )
 }
 
-function SourcesCard({ cron, config }: { cron: number; config: number }) {
+function SourcesCard({ cron, config, t }: { cron: number; config: number; t: (key: string) => string }) {
   return (
     <div style={{
       background: 'var(--material-regular)',
@@ -65,16 +91,16 @@ function SourcesCard({ cron, config }: { cron: number; config: number }) {
       padding: 'var(--space-4)',
     }}>
       <div style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', fontWeight: 'var(--weight-medium)', marginBottom: 'var(--space-1)' }}>
-        Sources
+        {t("sources")}
       </div>
       <div className="flex items-center" style={{ gap: 'var(--space-3)' }}>
         <div>
           <span style={{ fontSize: 'var(--text-footnote)', fontWeight: 'var(--weight-semibold)', color: 'var(--system-blue)' }}>{cron}</span>
-          <span style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginLeft: 4 }}>cron</span>
+          <span style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginLeft: 4 }}>{t("cron")}</span>
         </div>
         <div>
           <span style={{ fontSize: 'var(--text-footnote)', fontWeight: 'var(--weight-semibold)', color: 'var(--system-purple)' }}>{config}</span>
-          <span style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginLeft: 4 }}>config</span>
+          <span style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)', marginLeft: 4 }}>{t("config")}</span>
         </div>
       </div>
     </div>
@@ -84,6 +110,9 @@ function SourcesCard({ cron, config }: { cron: number; config: number }) {
 /* ── Page ──────────────────────────────────────────────────────── */
 
 export default function ActivityPage() {
+  const t = useTranslations("activity")
+  const locale = useLocale()
+  const isZh = locale === 'zh'
   const [entries, setEntries] = useState<LogEntry[]>([])
   const [summary, setSummary] = useState<LogSummary | null>(null)
   const [filter, setFilter] = useState<LogFilter>('all')
@@ -91,14 +120,14 @@ export default function ActivityPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [updatedAgo, setUpdatedAgo] = useState('just now')
+  const [updatedAgo, setUpdatedAgo] = useState(t("justNow"))
 
   const refresh = useCallback(() => {
     setRefreshing(true)
     setError(null)
     fetch('/api/logs')
       .then(r => {
-        if (!r.ok) throw new Error('Failed to load logs')
+        if (!r.ok) throw new Error(t("failedToLoadLogs"))
         return r.json()
       })
       .then((data: { entries: LogEntry[]; summary: LogSummary }) => {
@@ -109,11 +138,11 @@ export default function ActivityPage() {
         setRefreshing(false)
       })
       .catch(err => {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(err instanceof Error ? err.message : t("common.error"))
         setLoading(false)
         setRefreshing(false)
       })
-  }, [])
+  }, [t])
 
   // Initial load + polling
   useEffect(() => {
@@ -124,11 +153,11 @@ export default function ActivityPage() {
 
   // Updated ago ticker
   useEffect(() => {
-    const tick = () => setUpdatedAgo(timeAgo(lastRefresh.toISOString()))
+    const tick = () => setUpdatedAgo(isZh ? timeAgoZh(lastRefresh.toISOString()) : timeAgoEn(lastRefresh.toISOString()))
     tick()
     const interval = setInterval(tick, 30000)
     return () => clearInterval(interval)
-  }, [lastRefresh])
+  }, [lastRefresh, isZh])
 
   if (error && entries.length === 0) {
     return <ErrorState message={error} onRetry={refresh} />
@@ -148,25 +177,25 @@ export default function ActivityPage() {
       >
         <div className="flex items-center justify-between" style={{ padding: 'var(--space-4) var(--space-6)' }}>
           <div>
-            <h1 style={{
-              fontSize: 'var(--text-title1)',
-              fontWeight: 'var(--weight-bold)',
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.5px',
-              lineHeight: 'var(--leading-tight)',
-            }}>
-              Activity Console
-            </h1>
-            {!loading && summary && (
-              <p style={{ fontSize: 'var(--text-footnote)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)' }}>
-                {summary.totalEntries} event{summary.totalEntries !== 1 ? 's' : ''}
-                {summary.errorCount > 0 && (
-                  <span style={{ color: 'var(--system-red)' }}>
-                    {' \u00b7 '}{summary.errorCount} error{summary.errorCount !== 1 ? 's' : ''}
-                  </span>
-                )}
-              </p>
-            )}
+              <h1 style={{
+                fontSize: 'var(--text-title1)',
+                fontWeight: 'var(--weight-bold)',
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.5px',
+                lineHeight: 'var(--leading-tight)',
+              }}>
+                {t("title")}
+              </h1>
+              {!loading && summary && (
+                <p style={{ fontSize: 'var(--text-footnote)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)' }}>
+                  {summary.totalEntries}{isZh ? ' 个事件' : ` event${summary.totalEntries !== 1 ? 's' : ''}`}
+                  {summary.errorCount > 0 && (
+                    <span style={{ color: 'var(--system-red)' }}>
+                      {' \u00b7 '}{summary.errorCount}{isZh ? ' 个错误' : ` error${summary.errorCount !== 1 ? 's' : ''}`}
+                    </span>
+                  )}
+                </p>
+              )}
           </div>
           <div className="flex items-center" style={{ gap: 'var(--space-3)' }}>
             {/* Open Live Stream */}
@@ -187,16 +216,16 @@ export default function ActivityPage() {
               }}
             >
               <Radio size={14} />
-              Open Live Logs
+              {t("openLiveLogs")}
             </button>
 
             <span style={{ fontSize: 'var(--text-caption1)', color: 'var(--text-tertiary)' }}>
-              Updated {updatedAgo}
+              {`${t("updated")} ${updatedAgo}`}
             </span>
             <button
               onClick={refresh}
               className="focus-ring"
-              aria-label="Refresh activity data"
+              aria-label={t("refresh")}
               style={{
                 width: 32,
                 height: 32,
@@ -244,9 +273,9 @@ export default function ActivityPage() {
           <>
             {/* Summary cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }} className="summary-cards-grid">
-              <TotalCard count={summary?.totalEntries ?? 0} />
-              <ErrorCard count={summary?.errorCount ?? 0} />
-              <SourcesCard cron={summary?.sources.cron ?? 0} config={summary?.sources.config ?? 0} />
+              <TotalCard count={summary?.totalEntries ?? 0} t={t} />
+              <ErrorCard count={summary?.errorCount ?? 0} t={t} />
+              <SourcesCard cron={summary?.sources.cron ?? 0} config={summary?.sources.config ?? 0} t={t} />
             </div>
 
             {/* Log browser */}
@@ -256,6 +285,8 @@ export default function ActivityPage() {
               loading={false}
               filter={filter}
               onFilterChange={setFilter}
+              t={(key: string) => t(key)}
+              isZh={isZh}
             />
           </>
         )}

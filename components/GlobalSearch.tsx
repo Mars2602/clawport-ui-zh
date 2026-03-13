@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Search,
   Map,
@@ -24,20 +25,22 @@ interface SearchResult {
   subtitle?: string;
   icon: React.ReactNode;
   href: string;
-  category: 'Agents' | 'Pages' | 'Crons';
+  category: 'agents' | 'pages' | 'crons';
 }
 
 // ---------------------------------------------------------------------------
-// Static pages
+// Static pages (labels will be translated in component)
 // ---------------------------------------------------------------------------
 
-const STATIC_PAGES: SearchResult[] = [
-  { id: 'page-map', label: 'Map', icon: <Map size={16} />, href: '/', category: 'Pages' },
-  { id: 'page-messages', label: 'Messages', icon: <MessageSquare size={16} />, href: '/chat', category: 'Pages' },
-  { id: 'page-crons', label: 'Crons', icon: <Clock size={16} />, href: '/crons', category: 'Pages' },
-  { id: 'page-memory', label: 'Memory', icon: <Brain size={16} />, href: '/memory', category: 'Pages' },
-  { id: 'page-settings', label: 'Settings', icon: <Settings size={16} />, href: '/settings', category: 'Pages' },
-];
+function useStaticPages(t: (key: string) => string): SearchResult[] {
+  return [
+    { id: 'page-map', label: t('dashboard'), icon: <Map size={16} />, href: '/', category: 'pages' },
+    { id: 'page-messages', label: t('chat'), icon: <MessageSquare size={16} />, href: '/chat', category: 'pages' },
+    { id: 'page-crons', label: t('crons'), icon: <Clock size={16} />, href: '/crons', category: 'pages' },
+    { id: 'page-memory', label: t('memory'), icon: <Brain size={16} />, href: '/memory', category: 'pages' },
+    { id: 'page-settings', label: t('settings'), icon: <Settings size={16} />, href: '/settings', category: 'pages' },
+  ];
+}
 
 // ---------------------------------------------------------------------------
 // Simple fuzzy match — case-insensitive substring
@@ -61,11 +64,12 @@ function fuzzyMatch(query: string, target: string): boolean {
 // ---------------------------------------------------------------------------
 
 export function SearchTrigger({ onClick }: { onClick: () => void }) {
+  const t = useTranslations('common');
   return (
     <button
       onClick={onClick}
       className="nav-item focus-ring"
-      aria-label="Open search (Cmd+K)"
+      aria-label={t('search') + ' (Cmd+K)'}
       style={{
         width: '100%',
         display: 'flex',
@@ -83,7 +87,7 @@ export function SearchTrigger({ onClick }: { onClick: () => void }) {
       }}
     >
       <Search size={14} style={{ flexShrink: 0, opacity: 0.7 }} />
-      <span style={{ flex: 1, textAlign: 'left' }}>Search...</span>
+      <span style={{ flex: 1, textAlign: 'left' }}>{t('search')}...</span>
       <kbd
         style={{
           fontSize: '11px',
@@ -115,6 +119,9 @@ export function GlobalSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const t = useTranslations('common');
+  const tNav = useTranslations('nav');
+  const STATIC_PAGES = useStaticPages(tNav);
 
   // -----------------------------------------------------------------------
   // Keyboard shortcut: Cmd+K / Ctrl+K
@@ -211,7 +218,7 @@ export function GlobalSearch() {
         subtitle: a.title,
         icon: <Bot size={16} style={{ color: a.color }} />,
         href: `/chat?agent=${a.id}`,
-        category: 'Agents',
+        category: 'agents',
       });
     });
 
@@ -226,7 +233,7 @@ export function GlobalSearch() {
         subtitle: c.schedule,
         icon: <Timer size={16} />,
         href: '/crons',
-        category: 'Crons',
+        category: 'crons',
       });
     });
 
@@ -244,15 +251,15 @@ export function GlobalSearch() {
   // -----------------------------------------------------------------------
   const grouped = useMemo(() => {
     const groups: { category: string; items: SearchResult[] }[] = [];
-    const categoryOrder = ['Agents', 'Pages', 'Crons'];
+    const categoryOrder: ('agents' | 'pages' | 'crons')[] = ['agents', 'pages', 'crons'];
     for (const cat of categoryOrder) {
       const items = results.filter((r) => r.category === cat);
       if (items.length > 0) {
-        groups.push({ category: cat, items });
+        groups.push({ category: tNav(cat), items });
       }
     }
     return groups;
-  }, [results]);
+  }, [results, tNav]);
 
   // Flat list for keyboard nav
   const flatResults = useMemo(() => grouped.flatMap((g) => g.items), [grouped]);
@@ -386,8 +393,8 @@ export function GlobalSearch() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search ClawPort..."
-            aria-label="Search ClawPort"
+            placeholder={`${t('search')}...`}
+            aria-label={t('search')}
             style={{
               flex: 1,
               background: 'transparent',
@@ -434,7 +441,7 @@ export function GlobalSearch() {
                 fontSize: '13px',
               }}
             >
-              No results for &lsquo;{query}&rsquo;
+              {t('search')} &lsquo;{query}&rsquo; {t('noResults')}
             </div>
           )}
 
@@ -556,13 +563,13 @@ export function GlobalSearch() {
           }}
         >
           <span>
-            <kbd style={{ fontFamily: 'var(--font-mono)' }}>{'\u2191\u2193'}</kbd> Navigate
+            <kbd style={{ fontFamily: 'var(--font-mono)' }}>{'\u2191\u2193'}</kbd> {t('navigate')}
           </span>
           <span>
-            <kbd style={{ fontFamily: 'var(--font-mono)' }}>{'\u21B5'}</kbd> Open
+            <kbd style={{ fontFamily: 'var(--font-mono)' }}>{'\u21B5'}</kbd> {t('open')}
           </span>
           <span>
-            <kbd style={{ fontFamily: 'var(--font-mono)' }}>esc</kbd> Close
+            <kbd style={{ fontFamily: 'var(--font-mono)' }}>esc</kbd> {t('close')}
           </span>
         </div>
       </div>

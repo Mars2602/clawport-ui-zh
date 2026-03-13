@@ -1,12 +1,21 @@
 'use client'
 
-import { COLUMNS } from '@/lib/kanban/types'
+import { COLUMNS, type KanbanColumn as KanbanColumnType } from '@/lib/kanban/types'
 import type { KanbanTicket, TicketStatus } from '@/lib/kanban/types'
 import type { KanbanStore } from '@/lib/kanban/store'
 import { getTicketsByStatus } from '@/lib/kanban/store'
 import type { Agent } from '@/lib/types'
 import { KanbanColumn } from './KanbanColumn'
 import { TicketCard } from './TicketCard'
+
+interface TicketCardLabels {
+  leadDev?: string
+  uxUi?: string
+  qa?: string
+  priorityLow?: string
+  priorityMedium?: string
+  priorityHigh?: string
+}
 
 interface KanbanBoardProps {
   tickets: KanbanStore
@@ -16,6 +25,9 @@ interface KanbanBoardProps {
   onCreateTicket: () => void
   isWorking?: (ticketId: string) => boolean
   filterAgentId?: string | null
+  columns?: KanbanColumnType[]
+  noTicketsLabel?: string
+  ticketCardLabels?: TicketCardLabels
 }
 
 export function KanbanBoard({
@@ -26,6 +38,9 @@ export function KanbanBoard({
   onCreateTicket,
   isWorking,
   filterAgentId,
+  columns = COLUMNS,
+  noTicketsLabel = 'No tickets',
+  ticketCardLabels,
 }: KanbanBoardProps) {
   return (
     <div
@@ -39,7 +54,7 @@ export function KanbanBoard({
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      {COLUMNS.map((column) => {
+      {columns.map((column) => {
         const allColumnTickets = getTicketsByStatus(tickets, column.id)
         const columnTickets = filterAgentId
           ? allColumnTickets.filter((t) => t.assigneeId === filterAgentId)
@@ -54,12 +69,14 @@ export function KanbanBoard({
             onTicketClick={onTicketClick}
             onDrop={onMoveTicket}
             onCreateTicket={column.id === 'backlog' ? onCreateTicket : undefined}
+            noTicketsLabel={noTicketsLabel}
             renderTicket={(ticket) => (
               <TicketCard
                 ticket={ticket}
                 agent={agents.find((a) => a.id === ticket.assigneeId) ?? null}
                 onClick={() => onTicketClick(ticket)}
                 isWorking={isWorking?.(ticket.id)}
+                labels={ticketCardLabels}
               />
             )}
           />

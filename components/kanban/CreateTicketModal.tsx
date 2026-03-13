@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { Plus } from 'lucide-react'
 import type { Agent } from '@/lib/types'
 import type { TicketPriority, TeamRole } from '@/lib/kanban/types'
-import { PRIORITY_COLORS, ROLE_LABELS } from '@/lib/kanban/types'
+import { PRIORITY_COLORS } from '@/lib/kanban/types'
 import { AgentPicker } from '@/components/kanban/AgentPicker'
 import {
   Dialog,
@@ -25,16 +25,24 @@ interface CreateTicketModalProps {
     assigneeId: string | null
     assigneeRole: TeamRole | null
   }) => void
+  labels: Record<string, string>
 }
 
 const PRIORITIES: TicketPriority[] = ['low', 'medium', 'high']
-const PRIORITY_LABELS: Record<TicketPriority, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-}
 
 const ROLES: TeamRole[] = ['lead-dev', 'ux-ui', 'qa']
+
+const PRIORITY_LABELS_MAP: Record<TicketPriority, string> = {
+  low: 'priorityLow',
+  medium: 'priorityMedium',
+  high: 'priorityHigh',
+}
+
+const ROLE_LABELS_MAP: Record<TeamRole, string> = {
+  'lead-dev': 'leadDev',
+  'ux-ui': 'uxUi',
+  qa: 'qa',
+}
 
 const initialState = {
   title: '',
@@ -49,6 +57,7 @@ export function CreateTicketModal({
   onOpenChange,
   agents,
   onSubmit,
+  labels,
 }: CreateTicketModalProps) {
   const [form, setForm] = useState(initialState)
 
@@ -99,7 +108,7 @@ export function CreateTicketModal({
               color: 'var(--text-primary)',
             }}
           >
-            Create Ticket
+            {labels.title}
           </DialogTitle>
           <DialogDescription
             style={{
@@ -107,7 +116,7 @@ export function CreateTicketModal({
               color: 'var(--text-tertiary)',
             }}
           >
-            Add a new ticket to the backlog.
+            {labels.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -129,13 +138,13 @@ export function CreateTicketModal({
                 color: 'var(--text-secondary)',
               }}
             >
-              Title
+              {labels.formTitle}
             </label>
             <input
               id="ticket-title"
               type="text"
               className="apple-input focus-ring"
-              placeholder="What needs to be done?"
+              placeholder={labels.formTitlePlaceholder}
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               required
@@ -157,12 +166,12 @@ export function CreateTicketModal({
                 color: 'var(--text-secondary)',
               }}
             >
-              Description
+              {labels.formDescription}
             </label>
             <textarea
               id="ticket-description"
               className="apple-input focus-ring"
-              placeholder="Add details..."
+              placeholder={labels.formDescPlaceholder}
               rows={3}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -184,7 +193,7 @@ export function CreateTicketModal({
                 color: 'var(--text-secondary)',
               }}
             >
-              Priority
+              {labels.formPriority}
             </span>
             <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
               {PRIORITIES.map((p) => {
@@ -223,7 +232,7 @@ export function CreateTicketModal({
                         flexShrink: 0,
                       }}
                     />
-                    {PRIORITY_LABELS[p]}
+                    {labels[PRIORITY_LABELS_MAP[p]]}
                   </button>
                 )
               })}
@@ -239,7 +248,7 @@ export function CreateTicketModal({
                 color: 'var(--text-secondary)',
               }}
             >
-              Assignee
+              {labels.formAssignee}
             </label>
             <AgentPicker
               agents={agents}
@@ -264,7 +273,7 @@ export function CreateTicketModal({
                   color: 'var(--text-secondary)',
                 }}
               >
-                Role
+                {labels.formRole}
               </span>
               <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                 {ROLES.map((r) => {
@@ -296,7 +305,7 @@ export function CreateTicketModal({
                         textAlign: 'center',
                       }}
                     >
-                      {ROLE_LABELS[r]}
+                      {labels[ROLE_LABELS_MAP[r]]}
                     </button>
                   )
                 })}
@@ -324,7 +333,7 @@ export function CreateTicketModal({
             }}
           >
             <Plus size={16} />
-            Create Ticket
+            {labels.title}
           </button>
         </form>
       </DialogContent>

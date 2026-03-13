@@ -132,11 +132,11 @@ export default function HomePage() {
     setError(null)
     Promise.all([
       fetch("/api/agents").then((r) => {
-        if (!r.ok) throw new Error("Failed to fetch agents")
+        if (!r.ok) throw new Error(t('common.fetchAgentsError'))
         return r.json()
       }),
       fetch("/api/crons").then((r) => {
-        if (!r.ok) throw new Error("Failed to fetch crons")
+        if (!r.ok) throw new Error(t('common.fetchCronsError'))
         return r.json()
       }),
     ])
@@ -385,7 +385,7 @@ export default function HomePage() {
                 ref={closeRef}
                 onClick={() => setSelected(null)}
                 className="focus-ring"
-                aria-label="Close detail panel"
+                aria-label={t('common.close')}
                 style={{
                   width: 30,
                   height: 30,

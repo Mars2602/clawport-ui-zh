@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
 import { NavLinks } from '@/components/NavLinks';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -17,6 +18,7 @@ export function MobileSidebar({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { settings } = useSettings();
+  const t = useTranslations('common');
 
   // Close sidebar on route change
   useEffect(() => {
@@ -132,7 +134,7 @@ export function MobileSidebar({
             {(!settings.portalName || settings.portalName === 'ClawPort')
               ? <>Claw<span style={{ color: 'var(--accent)' }}>Port</span></>
               : settings.portalName}
-            {' '}{settings.portalSubtitle ?? 'Command Centre'}
+            {' '}{settings.portalSubtitle ?? t('commandCentre')}
           </span>
         </div>
       </header>
@@ -223,7 +225,7 @@ export function MobileSidebar({
                   letterSpacing: '0.01em',
                 }}
               >
-                {settings.portalSubtitle ?? 'Command Centre'}
+                {settings.portalSubtitle ?? t('commandCentre')}
               </div>
             </div>
           </div>
