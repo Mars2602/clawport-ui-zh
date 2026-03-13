@@ -1170,6 +1170,35 @@ const SEVERITY_ICON_MAP: Record<
   info: { Icon: Info, color: "var(--text-tertiary)" },
 };
 
+function translateHealthCheck(
+  check: MemoryHealthCheck,
+  t: (key: string) => string
+): { title: string; description: string; action: string | null } {
+  const keyMap: Record<string, string> = {
+    'vector-search-disabled': 'vectorSearchDisabled',
+    'unindexed-vector': 'unindexedVector',
+    'stale-index': 'staleIndex',
+    'large-files': 'largeFiles',
+    'stale-evergreen': 'staleEvergreen',
+    'total-size': 'totalSize',
+  };
+
+  const key = keyMap[check.id];
+  if (key) {
+    return {
+      title: t(`healthCheck.${key}.title`),
+      description: t(`healthCheck.${key}.description`),
+      action: check.action ? t(`healthCheck.${key}.action`) : null,
+    };
+  }
+
+  return {
+    title: check.title,
+    description: check.description,
+    action: check.action,
+  };
+}
+
 function HealthChecksList({
   checks,
   onCheckAction,
@@ -1209,6 +1238,7 @@ function HealthChecksList({
           const severity = check.severity === "ok" ? "info" : check.severity;
           const { Icon, color } = SEVERITY_ICON_MAP[severity];
           const isIndexCheck = check.id === "unindexed-vector" || check.id === "stale-index";
+          const translated = translateHealthCheck(check, t);
           return (
             <div key={check.id} className="flex items-start" style={{ gap: "var(--space-2)" }}>
               <Icon size={14} style={{ color, flexShrink: 0, marginTop: 2 }} />
@@ -1220,7 +1250,7 @@ function HealthChecksList({
                     color: "var(--text-primary)",
                   }}
                 >
-                  {check.title}
+                  {translated.title}
                 </div>
                 <div
                   style={{
@@ -1230,7 +1260,7 @@ function HealthChecksList({
                     marginTop: 2,
                   }}
                 >
-                  {check.description}
+                  {translated.description}
                 </div>
                 <div
                   style={{
@@ -2069,7 +2099,7 @@ export default function MemoryPage() {
           >
             <div className="flex">
               <div
-                className="flex-shrink-0 select-none"
+                className="shrink-0 select-none"
                 style={{
                   paddingRight: "var(--space-4)",
                   marginRight: "var(--space-4)",
@@ -2166,7 +2196,7 @@ export default function MemoryPage() {
     >
       {/* ── Sticky header ──────────────────────────────────────── */}
       <header
-        className="sticky top-0 z-10 flex-shrink-0"
+        className="sticky top-0 z-10 shrink-0"
         style={{
           background: "var(--material-regular)",
           backdropFilter: "blur(40px) saturate(180%)",
@@ -2629,7 +2659,7 @@ export default function MemoryPage() {
               <div className="flex h-full" style={{ background: "var(--bg)" }}>
                 {/* File list sidebar */}
                 <aside
-                  className={`browser-sidebar flex-shrink-0 flex flex-col ${
+                  className={`browser-sidebar shrink-0 flex flex-col ${
                     mobileShowContent && selected ? "hidden md:flex" : "flex"
                   }`}
                   style={{
@@ -2815,7 +2845,7 @@ export default function MemoryPage() {
                     <>
                       {/* Content header */}
                       <div
-                        className="flex-shrink-0"
+                        className="shrink-0"
                         style={{
                           padding: "var(--space-3) var(--space-6)",
                           borderBottom: "1px solid var(--separator)",
@@ -2921,7 +2951,7 @@ export default function MemoryPage() {
 
                           {/* Action buttons */}
                           <div
-                            className="flex items-center flex-shrink-0"
+                            className="flex items-center shrink-0"
                             style={{ gap: "var(--space-2)" }}
                           >
                             {isEditing ? (

@@ -199,7 +199,39 @@
     "errorGettingResponse": "获取响应时出错。检查 API 连接。",
     "invalidJson": "无效的 JSON 语法",
     "saveFailed": "保存失败",
-    "refresh": "刷新记忆数据"
+    "refresh": "刷新记忆数据",
+    "healthCheck": {
+      "vectorSearchDisabled": {
+        "title": "向量搜索已禁用",
+        "description": "代理只能直接读取 MEMORY.md。请在 openclaw.json 中启用向量搜索，以便代理可以语义搜索所有记忆文件。",
+        "action": "在 openclaw.json 中启用 memorySearch，然后运行 \"openclaw memory reindex\" 构建搜索索引。"
+      },
+      "unindexedVector": {
+        "title": "向量搜索已启用但未索引",
+        "description": "配置中已启用记忆搜索，但索引不存在。在构建索引之前，代理无法使用语义搜索。",
+        "action": "运行 \"openclaw memory reindex\" 构建搜索索引。"
+      },
+      "staleIndex": {
+        "title": "索引已过期",
+        "description": "搜索索引已过期，可能缺少最新更改。",
+        "action": "运行 \"openclaw memory reindex\" 更新搜索索引。"
+      },
+      "largeFiles": {
+        "title": "记忆文件过大",
+        "description": "较大的记忆文件可能会降低检索质量并增加嵌入成本。",
+        "action": "考虑将大文件拆分为按主题组织的较小文件。"
+      },
+      "staleEvergreen": {
+        "title": "常绿文件未更新",
+        "description": "常绿记忆文件长期未更新。",
+        "action": "审查和更新常绿文件中的信息，确保其保持最新。"
+      },
+      "totalSize": {
+        "title": "总记忆体积较大",
+        "description": "总记忆体积较大可能会影响检索性能。",
+        "action": "考虑归档或删除旧的每日日志。"
+      }
+    }
   },
   "onboarding": {
     "welcome": "欢迎使用 ClawPort",

@@ -138,7 +138,7 @@ export default function ActivityPage() {
     <div className="h-full flex flex-col overflow-hidden animate-fade-in" style={{ background: 'var(--bg)' }}>
       {/* ── Sticky header ──────────────────────────────────────── */}
       <header
-        className="sticky top-0 z-10 flex-shrink-0"
+        className="sticky top-0 z-10 shrink-0"
         style={{
           background: 'var(--material-regular)',
           backdropFilter: 'blur(40px) saturate(180%)',
@@ -232,7 +232,7 @@ export default function ActivityPage() {
             <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--material-regular)' }}>
               {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="flex items-center" style={{ padding: 'var(--space-3) var(--space-4)', borderBottom: i < 5 ? '1px solid var(--separator)' : undefined, gap: 'var(--space-3)' }}>
-                  <Skeleton className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%' }} />
+                  <Skeleton className="shrink-0" style={{ width: 8, height: 8, borderRadius: '50%' }} />
                   <Skeleton style={{ width: 120, height: 12 }} />
                   <Skeleton style={{ width: 50, height: 18, borderRadius: 4 }} />
                   <Skeleton style={{ width: 200, height: 14, flex: 1 }} />
