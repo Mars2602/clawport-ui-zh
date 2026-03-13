@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type {
   Agent,
   MemoryFileInfo,
@@ -59,11 +60,13 @@ interface HealthChatMessage {
   isStreaming?: boolean;
 }
 
-const TABS: { key: Tab; label: string; Icon: typeof BarChart3 }[] = [
-  { key: "overview", label: "Overview", Icon: BarChart3 },
-  { key: "browser", label: "Browser", Icon: FolderOpen },
-  { key: "guide", label: "Guide", Icon: BookOpen },
-];
+function useTabs(t: (key: string) => string): { key: Tab; label: string; Icon: typeof BarChart3 }[] {
+  return [
+    { key: "overview", label: t("overview"), Icon: BarChart3 },
+    { key: "browser", label: t("browser"), Icon: FolderOpen },
+    { key: "guide", label: t("guide"), Icon: BookOpen },
+  ];
+}
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 
@@ -88,11 +91,13 @@ const CATEGORY_COLORS: Record<MemoryFileCategory, string> = {
   other: "var(--text-tertiary)",
 };
 
-const CATEGORY_LABELS: Record<MemoryFileCategory, string> = {
-  evergreen: "Evergreen",
-  daily: "Daily",
-  other: "Other",
-};
+function useCategoryLabels(t: (key: string) => string): Record<MemoryFileCategory, string> {
+  return {
+    evergreen: t("evergreen"),
+    daily: t("daily"),
+    other: t("other"),
+  };
+}
 
 /* ─── Icons ──────────────────────────────────────────────────── */
 
@@ -166,7 +171,7 @@ function BackArrow() {
 
 /* ─── Overview: Stat Cards ───────────────────────────────────── */
 
-function FilesCard({ stats }: { stats: MemoryStats }) {
+function FilesCard({ stats, t }: { stats: MemoryStats; t: (key: string) => string }) {
   return (
     <div
       style={{
@@ -184,7 +189,7 @@ function FilesCard({ stats }: { stats: MemoryStats }) {
           marginBottom: "var(--space-1)",
         }}
       >
-        Files
+        {t("files")}
       </div>
       <div
         style={{
@@ -202,13 +207,13 @@ function FilesCard({ stats }: { stats: MemoryStats }) {
           marginTop: 2,
         }}
       >
-        {stats.evergreenCount} evergreen {"\u00b7"} {stats.dailyLogCount} daily
+        {stats.evergreenCount} {t("evergreen")} {"\u00b7"} {stats.dailyLogCount} {t("daily")}
       </div>
     </div>
   );
 }
 
-function SizeCard({ stats }: { stats: MemoryStats }) {
+function SizeCard({ stats, t }: { stats: MemoryStats; t: (key: string) => string }) {
   return (
     <div
       style={{
@@ -226,7 +231,7 @@ function SizeCard({ stats }: { stats: MemoryStats }) {
           marginBottom: "var(--space-1)",
         }}
       >
-        Size
+        {t("size")}
       </div>
       <div
         style={{
@@ -245,14 +250,14 @@ function SizeCard({ stats }: { stats: MemoryStats }) {
             marginTop: 2,
           }}
         >
-          {stats.oldestDaily} to {stats.newestDaily}
+          {stats.oldestDaily} {t("to")} {stats.newestDaily}
         </div>
       )}
     </div>
   );
 }
 
-function IndexCard({ status }: { status: MemoryStatus }) {
+function IndexCard({ status, t }: { status: MemoryStatus; t: (key: string) => string }) {
   const dotColor = status.indexed ? "var(--system-green)" : "var(--text-tertiary)";
   return (
     <div
@@ -271,7 +276,7 @@ function IndexCard({ status }: { status: MemoryStatus }) {
           marginBottom: "var(--space-1)",
         }}
       >
-        Index
+        {t("index")}
       </div>
       <div className="flex items-center" style={{ gap: "var(--space-2)" }}>
         <span
@@ -290,7 +295,7 @@ function IndexCard({ status }: { status: MemoryStatus }) {
             color: "var(--text-primary)",
           }}
         >
-          {status.indexed ? "Indexed" : "Not indexed"}
+          {status.indexed ? t("indexed") : t("notIndexed")}
         </span>
       </div>
       <div
@@ -300,7 +305,7 @@ function IndexCard({ status }: { status: MemoryStatus }) {
           marginTop: 2,
         }}
       >
-        {status.lastIndexed ? `Last: ${timeAgo(status.lastIndexed)}` : "No index data"}
+        {status.lastIndexed ? `${timeAgo(status.lastIndexed)}` : t("noIndexData")}
         {status.embeddingProvider && ` \u00b7 ${status.embeddingProvider}`}
       </div>
     </div>
@@ -309,7 +314,7 @@ function IndexCard({ status }: { status: MemoryStatus }) {
 
 /* ─── Overview: Memory Timeline ──────────────────────────────── */
 
-function MemoryTimeline({ timeline }: { timeline: MemoryStats["dailyTimeline"] }) {
+function MemoryTimeline({ timeline, t }: { timeline: MemoryStats["dailyTimeline"]; t: (key: string) => string }) {
   const maxSize = Math.max(...timeline.map((d) => d?.sizeBytes ?? 0), 1);
   const barWidth = 10;
   const gap = 3;
@@ -334,7 +339,7 @@ function MemoryTimeline({ timeline }: { timeline: MemoryStats["dailyTimeline"] }
           marginBottom: "var(--space-3)",
         }}
       >
-        Daily Log Timeline (30 days)
+        {t("daily")} (30 days)
       </div>
       <svg
         width="100%"
@@ -426,7 +431,7 @@ function MemoryTimeline({ timeline }: { timeline: MemoryStats["dailyTimeline"] }
 
 /* ─── Overview: Config Panel ─────────────────────────────────── */
 
-function ConfigPanel({ config }: { config: MemoryConfig }) {
+function ConfigPanel({ config, t }: { config: MemoryConfig; t: (key: string) => string }) {
   const { memorySearch: ms, memoryFlush: mf, configFound } = config;
   return (
     <div
@@ -445,7 +450,7 @@ function ConfigPanel({ config }: { config: MemoryConfig }) {
           marginBottom: "var(--space-3)",
         }}
       >
-        Configuration
+        {t("configuration")}
       </div>
 
       {!configFound && (
@@ -459,7 +464,7 @@ function ConfigPanel({ config }: { config: MemoryConfig }) {
             marginBottom: "var(--space-3)",
           }}
         >
-          Using OpenClaw defaults (no explicit memorySearch config)
+          {t("usingDefaults")}
         </div>
       )}
 
@@ -471,41 +476,41 @@ function ConfigPanel({ config }: { config: MemoryConfig }) {
           fontSize: "var(--text-caption1)",
         }}
       >
-        <span style={{ color: "var(--text-tertiary)" }}>Search</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("search")}</span>
         <span style={{ color: ms.enabled ? "var(--system-green)" : "var(--text-secondary)" }}>
-          {ms.enabled ? "Enabled" : "Disabled"}
+          {ms.enabled ? t("enabled") : t("disabled")}
         </span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>Provider</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("provider")}</span>
         <span style={{ color: "var(--text-secondary)" }}>{ms.provider ?? "None"}</span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>Model</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("model")}</span>
         <span className="font-mono" style={{ color: "var(--text-secondary)", fontSize: "var(--text-caption2)" }}>
           {ms.model ?? "None"}
         </span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>Hybrid</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("hybrid")}</span>
         <span style={{ color: "var(--text-secondary)" }}>
           {ms.hybrid.enabled
-            ? `Vector ${ms.hybrid.vectorWeight} / Text ${ms.hybrid.textWeight}`
-            : "Disabled"}
+            ? `${t("vector")} ${ms.hybrid.vectorWeight} / ${t("text")} ${ms.hybrid.textWeight}`
+            : t("disabled")}
         </span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>Decay</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("decay")}</span>
         <span style={{ color: "var(--text-secondary)" }}>
           {ms.hybrid.temporalDecay.enabled
-            ? `Half-life: ${ms.hybrid.temporalDecay.halfLifeDays}d`
-            : "Disabled"}
+            ? `${t("halfLife")}: ${ms.hybrid.temporalDecay.halfLifeDays}d`
+            : t("disabled")}
         </span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>MMR</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("mmr")}</span>
         <span style={{ color: "var(--text-secondary)" }}>
-          {ms.hybrid.mmr.enabled ? `\u03bb = ${ms.hybrid.mmr.lambda}` : "Disabled"}
+          {ms.hybrid.mmr.enabled ? `\u03bb = ${ms.hybrid.mmr.lambda}` : t("disabled")}
         </span>
 
-        <span style={{ color: "var(--text-tertiary)" }}>Flush</span>
+        <span style={{ color: "var(--text-tertiary)" }}>{t("flush")}</span>
         <span style={{ color: "var(--text-secondary)" }}>
-          {mf.enabled ? `Threshold: ${(mf.softThresholdTokens / 1000).toFixed(0)}k tokens` : "Disabled"}
+          {mf.enabled ? `${t("threshold")}: ${(mf.softThresholdTokens / 1000).toFixed(0)}k ${t("tokens")}` : t("disabled")}
         </span>
       </div>
     </div>
@@ -514,7 +519,7 @@ function ConfigPanel({ config }: { config: MemoryConfig }) {
 
 /* ─── Guide: Decay Visualizer ────────────────────────────────── */
 
-function DecayVisualizer({ config }: { config: MemoryConfig }) {
+function DecayVisualizer({ config, t }: { config: MemoryConfig; t: (key: string) => string }) {
   const decay = config.memorySearch.hybrid.temporalDecay;
   const halfLife = decay.halfLifeDays;
   const enabled = decay.enabled;
@@ -560,7 +565,7 @@ function DecayVisualizer({ config }: { config: MemoryConfig }) {
             fontWeight: "var(--weight-medium)",
           }}
         >
-          Temporal Decay Curve
+          {t("temporalDecayCurve")}
         </span>
         {!enabled && (
           <span
@@ -573,7 +578,7 @@ function DecayVisualizer({ config }: { config: MemoryConfig }) {
               fontWeight: "var(--weight-medium)",
             }}
           >
-            Disabled
+            {t("disabled")}
           </span>
         )}
       </div>
@@ -666,7 +671,7 @@ function DecayVisualizer({ config }: { config: MemoryConfig }) {
 
 /* ─── Guide: Hybrid Balance Bar ──────────────────────────────── */
 
-function HybridBalanceBar({ config }: { config: MemoryConfig }) {
+function HybridBalanceBar({ config, t }: { config: MemoryConfig; t: (key: string) => string }) {
   const { vectorWeight, textWeight } = config.memorySearch.hybrid;
   const enabled = config.memorySearch.hybrid.enabled;
   const vPct = vectorWeight * 100;
@@ -689,7 +694,7 @@ function HybridBalanceBar({ config }: { config: MemoryConfig }) {
             fontWeight: "var(--weight-medium)",
           }}
         >
-          Hybrid Search Balance
+          {t("hybridSearchBalance")}
         </span>
         {!enabled && (
           <span
@@ -702,7 +707,7 @@ function HybridBalanceBar({ config }: { config: MemoryConfig }) {
               fontWeight: "var(--weight-medium)",
             }}
           >
-            Disabled
+            {t("disabled")}
           </span>
         )}
       </div>
@@ -726,7 +731,7 @@ function HybridBalanceBar({ config }: { config: MemoryConfig }) {
           }}
         >
           <span style={{ fontSize: 10, fontWeight: 600, color: "white" }}>
-            Vector {vPct.toFixed(0)}%
+            {t("vector")} {vPct.toFixed(0)}%
           </span>
         </div>
         <div
@@ -739,7 +744,7 @@ function HybridBalanceBar({ config }: { config: MemoryConfig }) {
           }}
         >
           <span style={{ fontSize: 10, fontWeight: 600, color: "white" }}>
-            Text {tPct.toFixed(0)}%
+            {t("text")} {tPct.toFixed(0)}%
           </span>
         </div>
       </div>
@@ -749,43 +754,46 @@ function HybridBalanceBar({ config }: { config: MemoryConfig }) {
 
 /* ─── Guide: Best Practices ──────────────────────────────────── */
 
-const BEST_PRACTICE_SECTIONS = [
-  {
-    title: "Writing to Memory",
-    color: "var(--system-green)",
-    tips: [
-      { do: true, text: "Keep MEMORY.md concise -- curated facts, not running logs" },
-      { do: true, text: "Use daily logs (YYYY-MM-DD.md) for ephemeral session context" },
-      { do: false, text: "Don't dump raw conversation transcripts into memory files" },
-      { do: true, text: "Structure entries with clear headers so search can find them" },
-    ],
-  },
-  {
-    title: "Search & Retrieval",
-    color: "var(--system-blue)",
-    tips: [
-      { do: true, text: "Enable hybrid search -- combines semantic + keyword matching" },
-      { do: true, text: "Turn on MMR (Maximal Marginal Relevance) to reduce duplicate results" },
-      { do: true, text: "Configure temporal decay so stale daily logs rank lower over time" },
-      { do: false, text: "Don't set half-life too short -- important context needs time to be useful" },
-    ],
-  },
-  {
-    title: "Maintenance",
-    color: "var(--system-orange)",
-    tips: [
-      { do: true, text: "Review and prune old daily logs periodically" },
-      { do: true, text: "Promote recurring patterns from daily logs into evergreen files" },
-      { do: true, text: "Enable memory flush to auto-compact context before token limits" },
-      { do: false, text: "Don't let MEMORY.md grow past ~200 lines -- split into topic files" },
-    ],
-  },
-];
+function useBestPracticeSections(t: (key: string) => string) {
+  return [
+    {
+      title: t("writingToMemory"),
+      color: "var(--system-green)",
+      tips: [
+        { do: true, text: "Keep MEMORY.md concise -- curated facts, not running logs" },
+        { do: true, text: "Use daily logs (YYYY-MM-DD.md) for ephemeral session context" },
+        { do: false, text: "Don't dump raw conversation transcripts into memory files" },
+        { do: true, text: "Structure entries with clear headers so search can find them" },
+      ],
+    },
+    {
+      title: t("searchRetrieval"),
+      color: "var(--system-blue)",
+      tips: [
+        { do: true, text: "Enable hybrid search -- combines semantic + keyword matching" },
+        { do: true, text: "Turn on MMR (Maximal Marginal Relevance) to reduce duplicate results" },
+        { do: true, text: "Configure temporal decay so stale daily logs rank lower over time" },
+        { do: false, text: "Don't set half-life too short -- important context needs time to be useful" },
+      ],
+    },
+    {
+      title: t("maintenance"),
+      color: "var(--system-orange)",
+      tips: [
+        { do: true, text: "Review and prune old daily logs periodically" },
+        { do: true, text: "Promote recurring patterns from daily logs into evergreen files" },
+        { do: true, text: "Enable memory flush to auto-compact context before token limits" },
+        { do: false, text: "Don't let MEMORY.md grow past ~200 lines -- split into topic files" },
+      ],
+    },
+  ];
+}
 
-function BestPractices() {
+function BestPractices({ t }: { t: (key: string) => string }) {
+  const sections = useBestPracticeSections(t);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-      {BEST_PRACTICE_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <div
           key={section.title}
           style={{
@@ -834,7 +842,7 @@ function BestPractices() {
                     color: tip.do ? "var(--system-green)" : "var(--system-red)",
                   }}
                 >
-                  {tip.do ? "DO" : "DON'T"}
+                  {tip.do ? t("do") : t("dont")}
                 </span>
                 <span style={{ fontSize: "var(--text-caption1)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
                   {tip.text}
@@ -857,7 +865,7 @@ const FILE_REFERENCE = [
   { path: "memory/YYYY-MM-DD.md", purpose: "Daily ephemeral context", decay: "High (temporal)" },
 ];
 
-function FileReference() {
+function FileReference({ t }: { t: (key: string) => string }) {
   return (
     <div
       style={{
@@ -875,7 +883,7 @@ function FileReference() {
           marginBottom: "var(--space-3)",
         }}
       >
-        File Reference
+        {t("fileReference")}
       </div>
       <div style={{ overflow: "auto" }}>
         <table
@@ -896,7 +904,7 @@ function FileReference() {
                   borderBottom: "1px solid var(--separator)",
                 }}
               >
-                Path
+                {t("path")}
               </th>
               <th
                 style={{
@@ -907,7 +915,7 @@ function FileReference() {
                   borderBottom: "1px solid var(--separator)",
                 }}
               >
-                Purpose
+                {t("purpose")}
               </th>
               <th
                 style={{
@@ -918,7 +926,7 @@ function FileReference() {
                   borderBottom: "1px solid var(--separator)",
                 }}
               >
-                Decay
+                {t("decay")}
               </th>
             </tr>
           </thead>
@@ -962,7 +970,7 @@ function FileReference() {
 
 /* ─── Guide: Flush Section ───────────────────────────────────── */
 
-function FlushSection({ config }: { config: MemoryConfig }) {
+function FlushSection({ config, t }: { config: MemoryConfig; t: (key: string) => string }) {
   const mf = config.memoryFlush;
   return (
     <div
@@ -981,7 +989,7 @@ function FlushSection({ config }: { config: MemoryConfig }) {
             fontWeight: "var(--weight-medium)",
           }}
         >
-          Memory Flush
+          {t("memoryFlush")}
         </span>
         <span
           style={{
@@ -993,7 +1001,7 @@ function FlushSection({ config }: { config: MemoryConfig }) {
             fontWeight: "var(--weight-medium)",
           }}
         >
-          {mf.enabled ? "Enabled" : "Disabled"}
+          {mf.enabled ? t("enabled") : t("disabled")}
         </span>
       </div>
       <p
@@ -1007,7 +1015,7 @@ function FlushSection({ config }: { config: MemoryConfig }) {
         When enabled, OpenClaw compacts conversation context by flushing
         important facts to memory files when the context reaches{" "}
         <strong style={{ color: "var(--text-primary)" }}>
-          {(mf.softThresholdTokens / 1000).toFixed(0)}k tokens
+          {(mf.softThresholdTokens / 1000).toFixed(0)}k {t("tokens")}
         </strong>
         . This prevents context window overflow while preserving key information.
       </p>
@@ -1017,7 +1025,7 @@ function FlushSection({ config }: { config: MemoryConfig }) {
 
 /* ─── Browser: Category Badge ────────────────────────────────── */
 
-function CategoryBadge({ category }: { category: MemoryFileCategory }) {
+function CategoryBadge({ category, labels }: { category: MemoryFileCategory; labels: Record<MemoryFileCategory, string> }) {
   return (
     <span
       style={{
@@ -1030,7 +1038,7 @@ function CategoryBadge({ category }: { category: MemoryFileCategory }) {
         flexShrink: 0,
       }}
     >
-      {CATEGORY_LABELS[category]}
+      {labels[category]}
     </span>
   );
 }
@@ -1047,10 +1055,12 @@ function HealthHero({
   health,
   stats,
   status,
+  t,
 }: {
   health: MemoryHealthSummary;
   stats: MemoryStats;
   status: MemoryStatus;
+  t: (key: string) => string;
 }) {
   const criticals = health.checks.filter((c) => c.severity === "critical").length;
   const warnings = health.checks.filter((c) => c.severity === "warning").length;
@@ -1092,7 +1102,7 @@ function HealthHero({
               lineHeight: 1.2,
             }}
           >
-            Health Score
+            {t("healthScore")}
           </div>
           <div
             style={{
@@ -1103,16 +1113,16 @@ function HealthHero({
           >
             {criticals > 0 && (
               <span style={{ color: "var(--system-red)" }}>
-                {criticals} critical
+                {criticals} {t("critical")}
               </span>
             )}
             {criticals > 0 && warnings > 0 && " \u00b7 "}
             {warnings > 0 && (
               <span style={{ color: "var(--system-orange)" }}>
-                {warnings} warning{warnings !== 1 ? "s" : ""}
+                {warnings} {t("warning")}{warnings !== 1 ? "s" : ""}
               </span>
             )}
-            {criticals === 0 && warnings === 0 && "All clear"}
+            {criticals === 0 && warnings === 0 && t("allClear")}
           </div>
         </div>
       </div>
@@ -1128,7 +1138,7 @@ function HealthHero({
           flexWrap: "wrap",
         }}
       >
-        <span>{stats.totalFiles} files</span>
+        <span>{stats.totalFiles} {t("files")}</span>
         <span style={{ color: "var(--text-tertiary)" }}>{"\u00b7"}</span>
         <span>{formatBytes(stats.totalSizeBytes)}</span>
         <span style={{ color: "var(--text-tertiary)" }}>{"\u00b7"}</span>
@@ -1142,7 +1152,7 @@ function HealthHero({
               flexShrink: 0,
             }}
           />
-          {status.indexed ? "Indexed" : "Not indexed"}
+          {status.indexed ? t("indexed") : t("notIndexed")}
         </span>
       </div>
     </div>
@@ -1165,11 +1175,13 @@ function HealthChecksList({
   onCheckAction,
   onViewFile,
   onReindex,
+  t,
 }: {
   checks: MemoryHealthCheck[];
   onCheckAction?: (check: MemoryHealthCheck) => void;
   onViewFile?: (relativePath: string) => void;
   onReindex?: () => void;
+  t: (key: string) => string;
 }) {
   if (checks.length === 0) return null;
 
@@ -1190,7 +1202,7 @@ function HealthChecksList({
           marginBottom: "var(--space-3)",
         }}
       >
-        Health Checks
+        {t("healthChecks")}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {checks.map((check) => {
@@ -1248,7 +1260,7 @@ function HealthChecksList({
                       }}
                     >
                       <Zap size={10} />
-                      How to fix
+                      {t("howToFix")}
                     </button>
                   )}
                   {check.affectedFiles && check.affectedFiles.length > 0 && onViewFile && (
@@ -1267,7 +1279,7 @@ function HealthChecksList({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      View
+                      {t("view")}
                     </button>
                   )}
                   {isIndexCheck && onReindex && (
@@ -1290,7 +1302,7 @@ function HealthChecksList({
                       }}
                     >
                       <RotateCw size={10} />
-                      Reindex now
+                      {t("reindexNow")}
                     </button>
                   )}
                 </div>
@@ -1305,7 +1317,7 @@ function HealthChecksList({
 
 /* ─── Overview: Stale Daily Logs Card ───────────────────────── */
 
-function StaleDailyLogsCard({ health }: { health: MemoryHealthSummary }) {
+function StaleDailyLogsCard({ health, t }: { health: MemoryHealthSummary; t: (key: string) => string }) {
   const logs = health.staleDailyLogs;
   if (logs.length === 0) return null;
 
@@ -1328,7 +1340,7 @@ function StaleDailyLogsCard({ health }: { health: MemoryHealthSummary }) {
           marginBottom: "var(--space-3)",
         }}
       >
-        Stale Daily Logs ({logs.length})
+        {t("staleDailyLogs")} ({logs.length})
       </div>
       <div
         style={{
@@ -1338,7 +1350,7 @@ function StaleDailyLogsCard({ health }: { health: MemoryHealthSummary }) {
           lineHeight: "var(--leading-relaxed)",
         }}
       >
-        {logs.length} daily log{logs.length !== 1 ? "s" : ""} older than 30 days ({formatBytes(totalSize)} total).
+        {logs.length} {t("daily")}{logs.length !== 1 ? "s" : ""} older than 30 days ({formatBytes(totalSize)} total).
         Review for patterns worth promoting to evergreen files, then delete the rest.
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
@@ -1368,7 +1380,7 @@ function StaleDailyLogsCard({ health }: { health: MemoryHealthSummary }) {
               padding: "var(--space-1) var(--space-2)",
             }}
           >
-            +{logs.length - 10} more
+            +{logs.length - 10} {t("more")}
           </div>
         )}
       </div>
@@ -1408,9 +1420,11 @@ function HealthBadge({ severity }: { severity: HealthSeverity }) {
 function ReindexButton({
   status,
   onReindex,
+  t,
 }: {
   status: ReindexStatus;
   onReindex: () => void;
+  t: (key: string) => string;
 }) {
   if (status === "unavailable") return null;
 
@@ -1441,7 +1455,7 @@ function ReindexButton({
           animation: isRunning ? "spin 1s linear infinite" : undefined,
         }}
       />
-      {isRunning ? "Reindexing..." : isSuccess ? "Done" : "Reindex"}
+      {isRunning ? t("reindexing") : isSuccess ? t("done") : t("reindex")}
     </button>
   );
 }
@@ -1488,6 +1502,10 @@ function EditingHintsPanel({ hints }: { hints: EditingHint[] }) {
 /* ─── Main Component ─────────────────────────────────────────── */
 
 export default function MemoryPage() {
+  const t = useTranslations("memory");
+  const TABS = useTabs(t);
+  const CATEGORY_LABELS = useCategoryLabels(t);
+  
   const [files, setFiles] = useState<MemoryFileInfo[]>([]);
   const [config, setConfig] = useState<MemoryConfig | null>(null);
   const [status, setStatus] = useState<MemoryStatus | null>(null);
@@ -1676,7 +1694,7 @@ export default function MemoryPage() {
       }
     } catch {
       setAnalysisContent(
-        (prev) => prev + "\n\n[Error: Failed to connect to agent]",
+        (prev) => prev + `\n\n[${t("error")}]`,
       );
     } finally {
       setAnalysisStreaming(false);
@@ -1765,17 +1783,17 @@ export default function MemoryPage() {
           ),
         );
       } catch {
-        setChatMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantMsgId
-              ? {
-                  ...m,
-                  content: "Error getting response. Check API connection.",
-                  isStreaming: false,
-                }
-              : m,
-          ),
-        );
+                setChatMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMsgId
+                      ? {
+                          ...m,
+                          content: t("errorGettingResponse"),
+                          isStreaming: false,
+                        }
+                      : m,
+                  ),
+                );
       } finally {
         setChatStreaming(false);
         chatTextareaRef.current?.focus();
@@ -1943,7 +1961,7 @@ export default function MemoryPage() {
       try {
         JSON.parse(editingContent);
       } catch {
-        setSaveError("Invalid JSON syntax");
+        setSaveError(t("invalidJson"));
         return;
       }
     }
@@ -1988,7 +2006,7 @@ export default function MemoryPage() {
         setReindexStatus("idle");
       }
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Save failed");
+      setSaveError(err instanceof Error ? err.message : t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -2170,32 +2188,32 @@ export default function MemoryPage() {
                 lineHeight: "var(--leading-tight)",
               }}
             >
-              Memory
-            </h1>
-            {!loading && stats && (
-              <p
-                style={{
-                  fontSize: "var(--text-footnote)",
-                  color: "var(--text-secondary)",
-                  marginTop: "var(--space-1)",
-                }}
-              >
-                {stats.totalFiles} file{stats.totalFiles !== 1 ? "s" : ""}
-                {" \u00b7 "}
-                {formatBytes(stats.totalSizeBytes)}
-                {stats.dailyLogCount > 0 && (
-                  <>
-                    {" \u00b7 "}
-                    {stats.dailyLogCount} daily log{stats.dailyLogCount !== 1 ? "s" : ""}
-                  </>
-                )}
-              </p>
-            )}
+            {t("title")}
+          </h1>
+          {!loading && stats && (
+            <p
+              style={{
+                fontSize: "var(--text-footnote)",
+                color: "var(--text-secondary)",
+                marginTop: "var(--space-1)",
+              }}
+            >
+              {stats.totalFiles} {t("files")}
+              {" \u00b7 "}
+              {formatBytes(stats.totalSizeBytes)}
+              {stats.dailyLogCount > 0 && (
+                <>
+                  {" \u00b7 "}
+                  {stats.dailyLogCount} {t("daily")}
+                </>
+              )}
+            </p>
+          )}
           </div>
           <button
             onClick={refresh}
             className="focus-ring"
-            aria-label="Refresh memory data"
+            aria-label={t("refresh")}
             style={{
               width: 32,
               height: 32,
@@ -2311,7 +2329,7 @@ export default function MemoryPage() {
                 {/* Health hero */}
                 {health && stats && status && (
                   <div style={{ marginBottom: "var(--space-4)" }}>
-                    <HealthHero health={health} stats={stats} status={status} />
+                    <HealthHero health={health} stats={stats} status={status} t={t} />
                   </div>
                 )}
 
@@ -2333,10 +2351,10 @@ export default function MemoryPage() {
                       <Activity size={18} style={{ color: "var(--accent)", flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
-                          Memory Advisor
+                          {t("memoryAdvisor")}
                         </div>
                         <div style={{ fontSize: 12, color: "var(--text-tertiary)", marginTop: 2 }}>
-                          AI-powered analysis of your memory system health
+                          {t("aiPoweredAnalysis")}
                         </div>
                       </div>
                       {analysisStreaming && (
@@ -2348,7 +2366,7 @@ export default function MemoryPage() {
                             width: 6, height: 6, borderRadius: "50%", background: "var(--accent)",
                             animation: "pulse 1.2s infinite",
                           }} />
-                          Analyzing...
+                          {t("analyzing")}
                         </span>
                       )}
                       {!analysisOpen && !analysisContent && !analysisStreaming && (
@@ -2362,7 +2380,7 @@ export default function MemoryPage() {
                             border: "none", cursor: "pointer",
                           }}
                         >
-                          Analyze
+                          {t("analyze")}
                         </button>
                       )}
                       {(analysisOpen || analysisContent) && (
@@ -2418,7 +2436,7 @@ export default function MemoryPage() {
                         {!analysisContent && !analysisStreaming && (
                           <div style={{ padding: "12px 20px 16px" }}>
                             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>
-                              Ask about
+                              {t("askAbout")}
                             </div>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                               {[
@@ -2539,7 +2557,7 @@ export default function MemoryPage() {
                                     sendChatMessage();
                                   }
                                 }}
-                                placeholder="Ask a follow-up..."
+                                placeholder={t("placeholder")}
                                 disabled={chatStreaming}
                                 rows={1}
                                 style={{
@@ -2571,7 +2589,7 @@ export default function MemoryPage() {
                                   opacity: chatStreaming || !chatInput.trim() ? 0.5 : 1,
                                 }}
                               >
-                                Send
+                                {t("send")}
                               </button>
                             </div>
                           </>
@@ -2589,6 +2607,7 @@ export default function MemoryPage() {
                       onCheckAction={rootAgent ? handleCheckAction : undefined}
                       onViewFile={handleViewFile}
                       onReindex={handleReindex}
+                      t={t}
                     />
                   </div>
                 )}
@@ -2596,12 +2615,12 @@ export default function MemoryPage() {
                 {/* Timeline */}
                 {stats && (
                   <div style={{ marginBottom: "var(--space-4)" }}>
-                    <MemoryTimeline timeline={stats.dailyTimeline} />
+                    <MemoryTimeline timeline={stats.dailyTimeline} t={t} />
                   </div>
                 )}
 
                 {/* Config */}
-                {config && <ConfigPanel config={config} />}
+                {config && <ConfigPanel config={config} t={t} />}
               </div>
             )}
 
@@ -2634,7 +2653,7 @@ export default function MemoryPage() {
                     <input
                       ref={searchRef}
                       type="search"
-                      placeholder="Search files..."
+                      placeholder={t("searchFiles")}
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="apple-input focus-ring"
@@ -2698,7 +2717,7 @@ export default function MemoryPage() {
                           color: "var(--text-tertiary)",
                         }}
                       >
-                        No files match
+                        {t("noFilesMatch")}
                       </div>
                     ) : (
                       sortedFiles.map((file) => {
@@ -2744,7 +2763,7 @@ export default function MemoryPage() {
                                 >
                                   {file.label}
                                 </span>
-                                <CategoryBadge category={file.category} />
+                                <CategoryBadge category={file.category} labels={CATEGORY_LABELS} />
                                 {health && (
                                   <HealthBadge
                                     severity={fileHealthSeverity(file, health.checks)}
@@ -2773,7 +2792,7 @@ export default function MemoryPage() {
                                       marginLeft: "var(--space-2)",
                                     }}
                                   >
-                                    {matches} match{matches !== 1 ? "es" : ""}
+                                    {matches} {matches !== 1 ? t("matches") : t("match")}
                                   </span>
                                 )}
                               </div>
@@ -2823,7 +2842,7 @@ export default function MemoryPage() {
                           }}
                         >
                           <BackArrow />
-                          Files
+                          {t("files")}
                         </button>
 
                         <div className="flex items-center justify-between">
@@ -2863,7 +2882,7 @@ export default function MemoryPage() {
                                   </span>
                                 ))}
                               </span>
-                              <CategoryBadge category={selected.category} />
+                              <CategoryBadge category={selected.category} labels={CATEGORY_LABELS} />
                               {isDirty && (
                                 <span
                                   style={{
@@ -2873,7 +2892,7 @@ export default function MemoryPage() {
                                     background: "var(--system-orange)",
                                     flexShrink: 0,
                                   }}
-                                  title="Unsaved changes"
+                                  title={t("unsavedChanges")}
                                 />
                               )}
                             </div>
@@ -2886,11 +2905,11 @@ export default function MemoryPage() {
                                 marginTop: 2,
                               }}
                             >
-                              {lineCount} line{lineCount !== 1 ? "s" : ""}
+                              {lineCount} {t("lines")}
                               {!isJson && (
                                 <>
                                   {" "}
-                                  {"\u00b7"} {words.toLocaleString()} words
+                                  {"\u00b7"} {words.toLocaleString()} {t("words")}
                                 </>
                               )}
                               {" \u00b7 "}
@@ -2921,7 +2940,7 @@ export default function MemoryPage() {
                                   }}
                                 >
                                   <X size={14} />
-                                  Cancel
+                                  {t("cancel")}
                                 </button>
                                 <button
                                   onClick={saveContent}
@@ -2943,7 +2962,7 @@ export default function MemoryPage() {
                                   }}
                                 >
                                   <Save size={14} />
-                                  {saving ? "Saving..." : "Save"}
+                                  {saving ? t("saving") : t("save")}
                                 </button>
                               </>
                             ) : (
@@ -2963,7 +2982,7 @@ export default function MemoryPage() {
                                   }}
                                 >
                                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                                  {copied ? "Copied" : "Copy"}
+                                  {copied ? t("copied") : t("copy")}
                                 </button>
                                 <button
                                   onClick={downloadContent}
@@ -2980,7 +2999,7 @@ export default function MemoryPage() {
                                   }}
                                 >
                                   <Download size={14} />
-                                  Download
+                                  {t("download")}
                                 </button>
                                 <button
                                   onClick={startEditing}
@@ -2997,12 +3016,13 @@ export default function MemoryPage() {
                                   }}
                                 >
                                   <Pencil size={14} />
-                                  Edit
+                                  {t("edit")}
                                 </button>
                                 {showReindex && (
                                   <ReindexButton
                                     status={reindexStatus}
                                     onReindex={handleReindex}
+                                    t={t}
                                   />
                                 )}
                               </>
@@ -3013,51 +3033,51 @@ export default function MemoryPage() {
 
                       {/* Unsaved changes prompt when switching files */}
                       {pendingFile && (
-                        <div
-                          style={{
-                            padding: "var(--space-2) var(--space-6)",
-                            background: "var(--system-orange)",
-                            color: "white",
-                            fontSize: "var(--text-caption1)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: "var(--space-2)",
-                          }}
-                        >
-                          <span>Unsaved changes</span>
-                          <div className="flex items-center" style={{ gap: "var(--space-2)" }}>
-                            <button
-                              onClick={saveContent}
-                              disabled={saving}
-                              style={{
-                                padding: "2px 8px",
-                                borderRadius: "var(--radius-sm)",
-                                background: "rgba(255,255,255,0.2)",
-                                color: "white",
-                                border: "none",
-                                fontSize: "var(--text-caption1)",
-                                cursor: "pointer",
-                              }}
-                            >
-                              {saving ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                              onClick={discardAndSwitch}
-                              style={{
-                                padding: "2px 8px",
-                                borderRadius: "var(--radius-sm)",
-                                background: "rgba(255,255,255,0.2)",
-                                color: "white",
-                                border: "none",
-                                fontSize: "var(--text-caption1)",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Discard
-                            </button>
-                          </div>
+                      <div
+                        style={{
+                          padding: "var(--space-2) var(--space-6)",
+                          background: "var(--system-orange)",
+                          color: "white",
+                          fontSize: "var(--text-caption1)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "var(--space-2)",
+                        }}
+                      >
+                        <span>{t("unsavedChanges")}</span>
+                        <div className="flex items-center" style={{ gap: "var(--space-2)" }}>
+                          <button
+                            onClick={saveContent}
+                            disabled={saving}
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: "var(--radius-sm)",
+                              background: "rgba(255,255,255,0.2)",
+                              color: "white",
+                              border: "none",
+                              fontSize: "var(--text-caption1)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {saving ? t("saving") : t("save")}
+                          </button>
+                          <button
+                            onClick={discardAndSwitch}
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: "var(--radius-sm)",
+                              background: "rgba(255,255,255,0.2)",
+                              color: "white",
+                              border: "none",
+                              fontSize: "var(--text-caption1)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {t("discard")}
+                          </button>
                         </div>
+                      </div>
                       )}
 
                       {/* Scrollable content area */}
@@ -3127,7 +3147,7 @@ export default function MemoryPage() {
                           marginTop: "var(--space-2)",
                         }}
                       >
-                        Select a file
+                        {t("selectFile")}
                       </span>
                       <span
                         style={{
@@ -3137,7 +3157,7 @@ export default function MemoryPage() {
                           maxWidth: 240,
                         }}
                       >
-                        Choose a file from the sidebar to view its contents
+                        {t("selectFileDesc")}
                       </span>
                     </div>
                   )}
@@ -3152,7 +3172,7 @@ export default function MemoryPage() {
                 style={{ padding: "var(--space-4) var(--space-6) var(--space-6)" }}
               >
                 {/* Best practices -- lead section */}
-                <BestPractices />
+                <BestPractices t={t} />
 
                 {/* Config visualizers */}
                 {config && (
@@ -3165,15 +3185,15 @@ export default function MemoryPage() {
                     }}
                     className="guide-config-grid"
                   >
-                    <DecayVisualizer config={config} />
-                    <HybridBalanceBar config={config} />
-                    <FlushSection config={config} />
-                    <FileReference />
+                    <DecayVisualizer config={config} t={t} />
+                    <HybridBalanceBar config={config} t={t} />
+                    <FlushSection config={config} t={t} />
+                    <FileReference t={t} />
                   </div>
                 )}
                 {!config && (
                   <div style={{ marginTop: "var(--space-4)" }}>
-                    <FileReference />
+                    <FileReference t={t} />
                   </div>
                 )}
               </div>
