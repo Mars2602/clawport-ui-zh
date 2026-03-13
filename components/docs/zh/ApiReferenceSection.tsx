@@ -7,7 +7,7 @@ import {
   Table,
   Callout,
   InfoCard,
-} from "./DocSection";
+} from "../DocSection";
 
 export function ApiReferenceSection() {
   return (

@@ -7,7 +7,7 @@ import {
   Table,
   BulletList,
   Callout,
-} from "./DocSection";
+} from "../DocSection";
 
 export function CronSystemSection() {
   return (

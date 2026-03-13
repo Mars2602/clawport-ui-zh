@@ -9,7 +9,7 @@ import {
   NumberedList,
   Callout,
   InfoCard,
-} from "./DocSection";
+} from "../DocSection";
 
 export function BestPracticesSection() {
   return (

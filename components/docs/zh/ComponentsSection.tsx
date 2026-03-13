@@ -7,7 +7,7 @@ import {
   Table,
   BulletList,
   InfoCard,
-} from "./DocSection";
+} from "../DocSection";
 
 export function ComponentsSection() {
   return (

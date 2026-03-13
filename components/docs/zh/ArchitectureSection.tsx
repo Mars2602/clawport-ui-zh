@@ -8,7 +8,7 @@ import {
   BulletList,
   Callout,
   InfoCard,
-} from "./DocSection";
+} from "../DocSection";
 
 export function ArchitectureSection() {
   return (

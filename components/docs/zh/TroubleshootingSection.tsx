@@ -7,7 +7,7 @@ import {
   BulletList,
   NumberedList,
   Callout,
-} from "./DocSection";
+} from "../DocSection";
 
 export function TroubleshootingSection() {
   return (

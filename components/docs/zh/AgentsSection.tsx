@@ -8,7 +8,7 @@ import {
   BulletList,
   NumberedList,
   Callout,
-} from "./DocSection";
+} from "../DocSection";
 
 export function AgentsSection() {
   return (
