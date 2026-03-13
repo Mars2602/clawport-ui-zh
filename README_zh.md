@@ -6,6 +6,8 @@
 
 **你的 AI 代理团队的可视化指挥中心。**
 
+【本项目仅为clawport项目的中文汉化，项目相关内容请移步原创仓库，会定期同步原项目代码，并更新汉化内容】
+
 [![npm version](https://img.shields.io/npm/v/clawport-ui-zh.svg)](https://www.npmjs.com/package/clawport-ui-zh)
 [![license](https://img.shields.io/npm/l/clawport-ui-zh.svg)](LICENSE)
 [![tests](https://img.shields.io/badge/tests-781%20passed-brightgreen)](#测试)
