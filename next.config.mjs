@@ -1,8 +1,11 @@
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { networkInterfaces } from "node:os";
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 /** Collect all local network IPs so the dev server accepts cross-origin
  *  requests from LAN, Tailscale, or any non-localhost address. */
@@ -25,4 +28,4 @@ const nextConfig = {
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev", ...getLocalIPs()],
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
