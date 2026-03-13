@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/routing';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Map, MessageSquare, Clock, Activity, Brain, Columns3, BookOpen, Settings, DollarSign } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { CronJob } from '@/lib/types';
@@ -26,17 +26,20 @@ interface NavItem {
   badge?: 'agents' | 'unread' | 'errors';
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: '/', label: 'Map', icon: Map, badge: 'agents' },
-  { href: '/kanban', label: 'Kanban', icon: Columns3 },
-  { href: '/chat', label: 'Messages', icon: MessageSquare, badge: 'unread' },
-  { href: '/crons', label: 'Crons', icon: Clock, badge: 'errors' },
-  { href: '/activity', label: 'Activity', icon: Activity },
-  { href: '/costs', label: 'Costs', icon: DollarSign },
-  { href: '/memory', label: 'Memory', icon: Brain },
-  { href: '/docs', label: 'Docs', icon: BookOpen },
-  { href: '/settings', label: 'Settings', icon: Settings },
-];
+function useNavItems(): NavItem[] {
+  const t = useTranslations('nav');
+  return [
+    { href: '/', label: t('dashboard'), icon: Map, badge: 'agents' },
+    { href: '/kanban', label: t('kanban'), icon: Columns3 },
+    { href: '/chat', label: t('chat'), icon: MessageSquare, badge: 'unread' },
+    { href: '/crons', label: t('crons'), icon: Clock, badge: 'errors' },
+    { href: '/activity', label: t('activity'), icon: Activity },
+    { href: '/costs', label: t('costs'), icon: DollarSign },
+    { href: '/memory', label: t('memory'), icon: Brain },
+    { href: '/docs', label: t('docs'), icon: BookOpen },
+    { href: '/settings', label: t('settings'), icon: Settings },
+  ];
+}
 
 // ---------------------------------------------------------------------------
 // NavLinks component
@@ -45,6 +48,8 @@ const NAV_ITEMS: NavItem[] = [
 export function NavLinks({ bottomSlot }: { bottomSlot?: React.ReactNode } = {}) {
   const pathname = usePathname();
   const { settings } = useSettings();
+  const t = useTranslations('nav');
+  const NAV_ITEMS = useNavItems();
   const [agentCount, setAgentCount] = useState<number | null>(null);
   const [cronCount, setCronCount] = useState<number | null>(null);
   const [cronErrorCount, setCronErrorCount] = useState<number | null>(null);

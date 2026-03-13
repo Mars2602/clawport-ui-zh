@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "title": "ClawPort - AI Agent Management Platform",
+    "description": "Open-source dashboard for managing, monitoring, and chatting with your OpenClaw AI agents"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "agents": "Agents",
+    "chat": "Chat",
+    "kanban": "Kanban",
+    "crons": "Crons",
+    "activity": "Activity",
+    "memory": "Memory",
+    "costs": "Costs",
+    "docs": "Docs",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "agents": {
+    "title": "AI Agents",
+    "createAgent": "Create Agent",
+    "editAgent": "Edit Agent",
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "model": "Model",
+    "noAgents": "No agents available",
+    "selectAgent": "Select Agent"
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "clear": "Clear Chat",
+    "newChat": "New Chat",
+    "noMessages": "No messages"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "apiKeys": "API Keys",
+    "general": "General"
+  }
+}

@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { ChevronRight, RotateCcw, Trash2, Upload, X } from 'lucide-react'
 import type { Agent } from '@/lib/types'
 import { useSettings } from '@/app/settings-provider'
 import { AgentAvatar } from '@/components/AgentAvatar'
 import { OnboardingWizard } from '@/components/OnboardingWizard'
 import { deleteOnServer } from '@/lib/conversations'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 // ---------------------------------------------------------------------------
 // Accent color presets
@@ -60,6 +62,7 @@ function resizeImage(file: File, maxSize: number): Promise<string> {
 // ---------------------------------------------------------------------------
 
 export default function SettingsPage() {
+  const t = useTranslations('settings')
   const {
     settings,
     setAccentColor,
@@ -146,10 +149,36 @@ export default function SettingsPage() {
             margin: '0 0 var(--space-8)',
           }}
         >
-          Settings
+          {t('title')}
         </h1>
 
-        {/* ── Section 1: Accent Color ── */}
+        {/* ── Section 1: Language ── */}
+        <section style={{ marginBottom: 'var(--space-8)' }}>
+          <div
+            style={{
+              fontSize: 'var(--text-caption1)',
+              fontWeight: 'var(--weight-semibold)',
+              letterSpacing: 'var(--tracking-wide)',
+              textTransform: 'uppercase',
+              color: 'var(--text-tertiary)',
+              padding: '0 var(--space-4) var(--space-2)',
+            }}
+          >
+            {t('language')}
+          </div>
+          <div
+            style={{
+              background: 'var(--material-regular)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--separator)',
+              padding: 'var(--space-4)',
+            }}
+          >
+            <LanguageSwitcher />
+          </div>
+        </section>
+
+        {/* ── Section 2: Accent Color ── */}
         <section style={{ marginBottom: 'var(--space-8)' }}>
           <div
             style={{
