@@ -15,18 +15,18 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 // ---------------------------------------------------------------------------
 
 const ACCENT_PRESETS = [
-  { label: 'Red', value: '#EF4444' },
-  { label: 'Gold', value: '#F5C518' },
-  { label: 'Blue', value: '#3B82F6' },
-  { label: 'Green', value: '#22C55E' },
-  { label: 'Orange', value: '#F97316' },
-  { label: 'Purple', value: '#A855F7' },
-  { label: 'Pink', value: '#EC4899' },
-  { label: 'Teal', value: '#14B8A6' },
-  { label: 'Cyan', value: '#06B6D4' },
-  { label: 'Indigo', value: '#6366F1' },
-  { label: 'Rose', value: '#F43F5E' },
-  { label: 'Lime', value: '#84CC16' },
+  { labelKey: 'settings.colorPresets.red', value: '#EF4444' },
+  { labelKey: 'settings.colorPresets.gold', value: '#F5C518' },
+  { labelKey: 'settings.colorPresets.blue', value: '#3B82F6' },
+  { labelKey: 'settings.colorPresets.green', value: '#22C55E' },
+  { labelKey: 'settings.colorPresets.orange', value: '#F97316' },
+  { labelKey: 'settings.colorPresets.purple', value: '#A855F7' },
+  { labelKey: 'settings.colorPresets.pink', value: '#EC4899' },
+  { labelKey: 'settings.colorPresets.teal', value: '#14B8A6' },
+  { labelKey: 'settings.colorPresets.cyan', value: '#06B6D4' },
+  { labelKey: 'settings.colorPresets.indigo', value: '#6366F1' },
+  { labelKey: 'settings.colorPresets.rose', value: '#F43F5E' },
+  { labelKey: 'settings.colorPresets.lime', value: '#84CC16' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -62,7 +62,7 @@ function resizeImage(file: File, maxSize: number): Promise<string> {
 // ---------------------------------------------------------------------------
 
 export default function SettingsPage() {
-  const t = useTranslations('settings')
+  const t = useTranslations()
   const {
     settings,
     setAccentColor,
@@ -149,7 +149,7 @@ export default function SettingsPage() {
             margin: '0 0 var(--space-8)',
           }}
         >
-          {t('title')}
+          {t('settings.title')}
         </h1>
 
         {/* ── Section 1: Language ── */}
@@ -164,7 +164,7 @@ export default function SettingsPage() {
               padding: '0 var(--space-4) var(--space-2)',
             }}
           >
-            {t('language')}
+            {t('settings.language')}
           </div>
           <div
             style={{
@@ -190,7 +190,7 @@ export default function SettingsPage() {
               padding: '0 var(--space-4) var(--space-2)',
             }}
           >
-            Accent Color
+            {t('settings.accentColor')}
           </div>
           <div
             style={{
@@ -215,8 +215,8 @@ export default function SettingsPage() {
                   <button
                     key={preset.value}
                     onClick={() => setAccentColor(preset.value)}
-                    aria-label={preset.label}
-                    title={preset.label}
+                    aria-label={t(preset.labelKey)}
+                    title={t(preset.labelKey)}
                     style={{
                       width: 32,
                       height: 32,
@@ -245,7 +245,7 @@ export default function SettingsPage() {
                   cursor: 'pointer',
                 }}
               >
-                Custom:
+                {t('settings.custom')}:
                 <input
                   type="color"
                   value={settings.accentColor ?? '#F5C518'}
@@ -277,7 +277,7 @@ export default function SettingsPage() {
                   }}
                 >
                   <RotateCcw size={12} />
-                  Reset to Default
+                  {t('settings.resetToDefault')}
                 </button>
               )}
             </div>
@@ -296,7 +296,7 @@ export default function SettingsPage() {
               padding: '0 var(--space-4) var(--space-2)',
             }}
           >
-            Branding
+            {t('settings.branding')}
           </div>
           <div
             style={{
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Name
+                {t('common.name')}
               </label>
               <input
                 type="text"
@@ -345,7 +345,7 @@ export default function SettingsPage() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Subtitle
+                {t('settings.subtitle')}
               </label>
               <input
                 type="text"
@@ -374,12 +374,12 @@ export default function SettingsPage() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Your Name
+                {t('settings.yourName')}
               </label>
               <input
                 type="text"
                 className="apple-input"
-                placeholder="Your Name"
+                placeholder={t('settings.yourName')}
                 value={operatorNameValue}
                 onChange={(e) => setOperatorNameValue(e.target.value)}
                 onBlur={() => setOperatorName(operatorNameValue || null)}
@@ -403,7 +403,7 @@ export default function SettingsPage() {
                   marginBottom: 'var(--space-2)',
                 }}
               >
-                Logo / Icon
+                {t('settings.logoIcon')}
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                 {/* Live preview */}
@@ -479,7 +479,7 @@ export default function SettingsPage() {
                   }}
                 >
                   <Upload size={14} />
-                  Upload Image
+                  {t('common.upload')}
                 </button>
                 <input
                   ref={portalIconInputRef}
@@ -538,7 +538,7 @@ export default function SettingsPage() {
                       color: 'var(--text-secondary)',
                     }}
                   >
-                    Hide background
+                    {t('settings.hideBackground')}
                   </span>
                   <button
                     role="switch"
@@ -595,7 +595,7 @@ export default function SettingsPage() {
                     color: 'var(--text-primary)',
                   }}
                 >
-                  Emoji Only Avatars
+                  {t('settings.emojiOnlyAvatars')}
                 </div>
                 <div
                   style={{
@@ -604,7 +604,7 @@ export default function SettingsPage() {
                     marginTop: 1,
                   }}
                 >
-                  Show emoji without colored background
+                  {t('settings.emojiOnlyDesc')}
                 </div>
               </div>
               <button
@@ -654,7 +654,7 @@ export default function SettingsPage() {
               padding: '0 var(--space-4) var(--space-2)',
             }}
           >
-            Agent Customization
+            {t('settings.agentCustomization')}
           </div>
           <div
             style={{
@@ -758,7 +758,7 @@ export default function SettingsPage() {
                             marginBottom: 'var(--space-1)',
                           }}
                         >
-                          Custom Emoji
+                          {t('settings.customEmoji')}
                         </label>
                         <input
                           type="text"
@@ -792,7 +792,7 @@ export default function SettingsPage() {
                             marginBottom: 'var(--space-1)',
                           }}
                         >
-                          Profile Image
+                          {t('settings.profileImage')}
                         </label>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                           <button
@@ -813,7 +813,7 @@ export default function SettingsPage() {
                             }}
                           >
                             <Upload size={14} />
-                            Upload
+                            {t('common.upload')}
                           </button>
                           <input
                             ref={fileInputRef}
@@ -840,7 +840,7 @@ export default function SettingsPage() {
                               />
                               <button
                                 onClick={() => setAgentOverride(agent.id, { profileImage: undefined })}
-                                aria-label="Remove image"
+                                aria-label={t('common.remove')}
                                 style={{
                                   width: 20,
                                   height: 20,
@@ -880,7 +880,7 @@ export default function SettingsPage() {
                           }}
                         >
                           <RotateCcw size={14} />
-                          Reset to Default
+                          {t('settings.resetToDefault')}
                         </button>
                       )}
                     </div>
@@ -924,11 +924,11 @@ export default function SettingsPage() {
               }}
             >
               <RotateCcw size={16} />
-              Re-run Setup
+              {t('settings.rerunSetup')}
             </button>
             <button
               onClick={() => {
-                if (window.confirm('Reset all settings to defaults?')) {
+                if (window.confirm(t('settings.resetAll') + '?')) {
                   resetAll()
                 }
               }}
@@ -949,19 +949,19 @@ export default function SettingsPage() {
               }}
             >
               <Trash2 size={16} />
-              Reset All Settings
+              {t('settings.resetAll')}
             </button>
             <button
               onClick={async () => {
-                if (!window.confirm('Delete all server-side conversation data?')) return
+                if (!window.confirm(t('settings.clearServerData') + '?')) return
                 try {
                   const res = await fetch('/api/conversations')
                   if (!res.ok) throw new Error()
                   const ids: string[] = await res.json()
                   ids.forEach(id => deleteOnServer(id))
-                  alert('Cleared')
+                  alert(t('common.success'))
                 } catch {
-                  alert('Failed to clear server data')
+                  alert(t('common.error'))
                 }
               }}
               className="btn-scale"
@@ -981,7 +981,7 @@ export default function SettingsPage() {
               }}
             >
               <Trash2 size={16} />
-              Clear Server Data
+              {t('settings.clearServerData')}
             </button>
           </div>
         </section>

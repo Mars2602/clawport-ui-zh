@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import type { Agent, CronJob } from "@/lib/types"
@@ -106,16 +107,17 @@ const VIEW_ICONS: Record<View, React.ComponentType<{ size: number }>> = {
   feed: List,
 }
 
-const VIEW_OPTIONS: { key: View; label: string }[] = [
-  { key: "map", label: "Map" },
-  { key: "grid", label: "Grid" },
-  { key: "feed", label: "Feed" },
+const VIEW_OPTIONS: { key: View; labelKey: string }[] = [
+  { key: "map", labelKey: "nav.dashboard" },
+  { key: "grid", labelKey: "common.grid" },
+  { key: "feed", labelKey: "common.feed" },
 ]
 
 /* ──────────────────────────────────────────────
    Main page
    ────────────────────────────────────────────── */
 export default function HomePage() {
+  const t = useTranslations()
   const router = useRouter()
   const [agents, setAgents] = useState<Agent[]>([])
   const [crons, setCrons] = useState<CronJob[]>([])
@@ -240,7 +242,7 @@ export default function HomePage() {
                 key={opt.key}
                 onClick={() => setView(opt.key)}
                 className="focus-ring"
-                aria-label={`${opt.label} view`}
+                aria-label={`${t(opt.labelKey)} view`}
                 aria-pressed={isActive}
                 style={{
                   padding: "5px 14px",
@@ -266,7 +268,7 @@ export default function HomePage() {
                 }}
               >
                 <ViewIcon size={14} />
-                {opt.label}
+                {t(opt.labelKey)}
               </button>
             )
           })}
@@ -304,7 +306,7 @@ export default function HomePage() {
                   display: "inline-block",
                 }}
               />
-              Healthy
+              {t("agents.healthy")}
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span
@@ -316,7 +318,7 @@ export default function HomePage() {
                   display: "inline-block",
                 }}
               />
-              Errors
+              {t("agents.errors")}
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span
@@ -328,7 +330,7 @@ export default function HomePage() {
                   display: "inline-block",
                 }}
               />
-              No crons
+              {t("agents.noCrons")}
             </span>
           </div>
         )}
@@ -495,7 +497,7 @@ export default function HomePage() {
                   }}
                 >
                   <MessageSquare size={16} />
-                  Message
+                  {t("chat.message")}
                 </button>
                 <Link
                   href={`/agents/${selected.id}`}
@@ -520,7 +522,7 @@ export default function HomePage() {
                   }}
                 >
                   <User size={16} />
-                  Profile
+                  {t("chat.profile")}
                 </Link>
               </div>
             </div>
@@ -546,7 +548,7 @@ export default function HomePage() {
                     padding: "0 var(--space-4) var(--space-2)",
                   }}
                 >
-                  Capabilities
+                  {t("agents.capabilities")}
                 </div>
                 <div
                   style={{
@@ -609,7 +611,7 @@ export default function HomePage() {
                       padding: "0 var(--space-4) var(--space-2)",
                     }}
                   >
-                    Organization
+                    {t("agents.organization")}
                   </div>
                   <div
                     style={{
@@ -656,7 +658,7 @@ export default function HomePage() {
                               color: "var(--text-tertiary)",
                             }}
                           >
-                            Reports to
+                            {t("agents.reportsTo")}
                           </div>
                         </div>
                         <span
@@ -709,7 +711,7 @@ export default function HomePage() {
                               color: "var(--text-tertiary)",
                             }}
                           >
-                            Direct report
+                            {t("agents.directReport")}
                           </div>
                         </div>
                         <span
@@ -740,7 +742,7 @@ export default function HomePage() {
                       padding: "0 var(--space-4) var(--space-2)",
                     }}
                   >
-                    Scheduled Tasks
+                    {t("agents.scheduledTasks")}
                   </div>
                   <div
                     style={{

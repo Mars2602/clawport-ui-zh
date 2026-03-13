@@ -35,7 +35,15 @@
     "warning": "警告",
     "info": "信息",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "reset": "重置",
+    "upload": "上传",
+    "remove": "移除",
+    "preview": "预览",
+    "name": "名称",
+    "description": "描述",
+    "grid": "网格",
+    "feed": "列表"
   },
   "agents": {
     "title": "AI 代理",
@@ -48,7 +56,15 @@
     "inactive": "非活跃",
     "model": "模型",
     "noAgents": "暂无代理",
-    "selectAgent": "选择代理"
+    "selectAgent": "选择代理",
+    "capabilities": "功能",
+    "organization": "组织架构",
+    "scheduledTasks": "定时任务",
+    "reportsTo": "汇报给",
+    "directReport": "直接下属",
+    "healthy": "正常",
+    "errors": "错误",
+    "noCrons": "无定时任务"
   },
   "chat": {
     "title": "对话",
@@ -56,7 +72,9 @@
     "send": "发送",
     "clear": "清空对话",
     "newChat": "新对话",
-    "noMessages": "暂无消息"
+    "noMessages": "暂无消息",
+    "message": "消息",
+    "profile": "资料"
   },
   "settings": {
     "title": "设置",
@@ -64,6 +82,117 @@
     "theme": "主题",
     "notifications": "通知",
     "apiKeys": "API 密钥",
-    "general": "常规"
+    "general": "常规",
+    "accentColor": "强调色",
+    "branding": "品牌",
+    "agentCustomization": "代理自定义",
+    "resetAll": "重置所有设置",
+    "clearServerData": "清除服务器数据",
+    "rerunSetup": "重新运行设置",
+    "custom": "自定义",
+    "resetToDefault": "恢复默认",
+    "subtitle": "副标题",
+    "yourName": "你的姓名",
+    "logoIcon": "Logo / 图标",
+    "hideBackground": "隐藏背景",
+    "emojiOnlyAvatars": "仅表情头像",
+    "emojiOnlyDesc": "显示表情而不显示彩色背景",
+    "customEmoji": "自定义表情",
+    "profileImage": "头像图片",
+    "colorPresets": {
+      "red": "红色",
+      "gold": "金色",
+      "blue": "蓝色",
+      "green": "绿色",
+      "orange": "橙色",
+      "purple": "紫色",
+      "pink": "粉色",
+      "teal": "青色",
+      "cyan": "青色",
+      "indigo": "靛蓝",
+      "rose": "玫瑰红",
+      "lime": "黄绿色"
+    }
+  },
+  "onboarding": {
+    "welcome": "欢迎使用 ClawPort",
+    "welcomeDesc": "AI 代理团队的视觉化指挥中心。为你提供对 OpenClaw 工作空间中每个代理的直接实时访问。",
+    "features": {
+      "mapChat": {
+        "title": "地图与对话",
+        "desc": "交互式代理组织结构图，支持直接消息"
+      },
+      "monitor": {
+        "title": "监控",
+        "desc": "定时任务、共享记忆和任务管理"
+      },
+      "personalize": {
+        "title": "个性化",
+        "desc": "五种主题、强调色和自定义品牌"
+      }
+    },
+    "builtBy": "由 John Rice 与 Jarvis (OpenClaw AI) 共同构建",
+    "systemCheck": "系统检查",
+    "systemCheckDesc": "正在验证你的 OpenClaw 连接...",
+    "agentRegistry": "代理注册表",
+    "gateway": "OpenClaw 网关",
+    "agentsFound": "{count} 个代理已发现",
+    "agent": "代理",
+    "agents": "代理",
+    "connected": "已连接",
+    "noAgentsError": "未找到代理。请检查你的 agents.json 或工作空间配置。",
+    "agentRegistryError": "无法访问代理注册表。服务器是否正在运行？",
+    "gatewayError": "无法访问 OpenClaw 网关。请运行：openclaw gateway run",
+    "yourAgentTeam": "你的代理团队",
+    "agentTeamDesc": "这是你的团队吗？如果不是，请检查你的 agents.json 配置。",
+    "setupHelp": "在终端中运行 clawport setup 来自动检测和配置你的环境。你可以继续设置并稍后修复此问题。",
+    "retryChecks": "重试检查",
+    "nameDashboard": "命名你的仪表盘",
+    "nameDashboardDesc": "个性化你的指挥中心。",
+    "dashboardName": "仪表盘名称",
+    "chooseTheme": "选择主题",
+    "chooseThemeDesc": "选择适合你的外观。这会立即生效。",
+    "accentColor": "强调色",
+    "accentColorDesc": "用你喜欢的颜色进行个性化。",
+    "voiceInput": "语音输入",
+    "voiceInputDesc": "使用系统内置的听写功能与你的代理对话。无需在浏览器中设置麦克风。",
+    "macosDictation": "macOS 听写",
+    "recommended": "推荐",
+    "dictationSteps": {
+      "step1": "打开系统设置 > 键盘",
+      "step2": "开启听写",
+      "step3": "点击任意对话输入框，双击 Fn 键开始说话"
+    },
+    "voiceNote": "你的语音由 macOS 转换为文本，然后作为常规消息发送。代理的响应方式与输入文本相同。适用于应用中的任何输入字段。",
+    "allSet": "一切就绪",
+    "allSetDesc": "你可以开始使用了。",
+    "featureCards": {
+      "agentMap": {
+        "name": "代理地图",
+        "desc": "所有 AI 代理的可视化组织结构图"
+      },
+      "chat": {
+        "name": "对话",
+        "desc": "与任何代理直接对话"
+      },
+      "kanban": {
+        "name": "看板",
+        "desc": "代理工作任务板"
+      },
+      "crons": {
+        "name": "定时任务",
+        "desc": "定时作业和状态监控"
+      },
+      "memory": {
+        "name": "记忆",
+        "desc": "共享上下文和知识文件"
+      }
+    },
+    "buttons": {
+      "begin": "开始",
+      "next": "下一步",
+      "back": "返回",
+      "getStarted": "开始使用"
+    }
   }
 }

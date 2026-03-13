@@ -35,7 +35,15 @@
     "warning": "Warning",
     "info": "Info",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "reset": "Reset",
+    "upload": "Upload",
+    "remove": "Remove",
+    "preview": "Preview",
+    "name": "Name",
+    "description": "Description",
+    "grid": "Grid",
+    "feed": "Feed"
   },
   "agents": {
     "title": "AI Agents",
@@ -48,7 +56,15 @@
     "inactive": "Inactive",
     "model": "Model",
     "noAgents": "No agents available",
-    "selectAgent": "Select Agent"
+    "selectAgent": "Select Agent",
+    "capabilities": "Capabilities",
+    "organization": "Organization",
+    "scheduledTasks": "Scheduled Tasks",
+    "reportsTo": "Reports to",
+    "directReport": "Direct report",
+    "healthy": "Healthy",
+    "errors": "Errors",
+    "noCrons": "No crons"
   },
   "chat": {
     "title": "Chat",
@@ -56,7 +72,9 @@
     "send": "Send",
     "clear": "Clear Chat",
     "newChat": "New Chat",
-    "noMessages": "No messages"
+    "noMessages": "No messages",
+    "message": "Message",
+    "profile": "Profile"
   },
   "settings": {
     "title": "Settings",
@@ -64,6 +82,117 @@
     "theme": "Theme",
     "notifications": "Notifications",
     "apiKeys": "API Keys",
-    "general": "General"
+    "general": "General",
+    "accentColor": "Accent Color",
+    "branding": "Branding",
+    "agentCustomization": "Agent Customization",
+    "resetAll": "Reset All Settings",
+    "clearServerData": "Clear Server Data",
+    "rerunSetup": "Re-run Setup",
+    "custom": "Custom",
+    "resetToDefault": "Reset to Default",
+    "subtitle": "Subtitle",
+    "yourName": "Your Name",
+    "logoIcon": "Logo / Icon",
+    "hideBackground": "Hide background",
+    "emojiOnlyAvatars": "Emoji Only Avatars",
+    "emojiOnlyDesc": "Show emoji without colored background",
+    "customEmoji": "Custom Emoji",
+    "profileImage": "Profile Image",
+    "colorPresets": {
+      "red": "Red",
+      "gold": "Gold",
+      "blue": "Blue",
+      "green": "Green",
+      "orange": "Orange",
+      "purple": "Purple",
+      "pink": "Pink",
+      "teal": "Teal",
+      "cyan": "Cyan",
+      "indigo": "Indigo",
+      "rose": "Rose",
+      "lime": "Lime"
+    }
+  },
+  "onboarding": {
+    "welcome": "Welcome to ClawPort",
+    "welcomeDesc": "A visual command centre for your AI agent team. Built to give you direct, real-time access to every agent in your OpenClaw workspace.",
+    "features": {
+      "mapChat": {
+        "title": "Map & Chat",
+        "desc": "Interactive agent org chart with direct messaging"
+      },
+      "monitor": {
+        "title": "Monitor",
+        "desc": "Cron jobs, shared memory, and task management"
+      },
+      "personalize": {
+        "title": "Personalize",
+        "desc": "Five themes, accent colors, and custom branding"
+      }
+    },
+    "builtBy": "Built by John Rice with Jarvis (OpenClaw AI)",
+    "systemCheck": "System Check",
+    "systemCheckDesc": "Verifying your OpenClaw connection...",
+    "agentRegistry": "Agent Registry",
+    "gateway": "OpenClaw Gateway",
+    "agentsFound": "{count} agent{plural} found",
+    "agent": "agent",
+    "agents": "agents",
+    "connected": "Connected",
+    "noAgentsError": "No agents found. Check your agents.json or workspace config.",
+    "agentRegistryError": "Could not reach agent registry. Is the server running?",
+    "gatewayError": "Could not reach OpenClaw gateway. Run: openclaw gateway run",
+    "yourAgentTeam": "Your Agent Team",
+    "agentTeamDesc": "Does this look like your team? If not, check your agents.json configuration.",
+    "setupHelp": "Run clawport setup in your terminal to auto-detect and configure your environment. You can continue setup and fix this later.",
+    "retryChecks": "Retry Checks",
+    "nameDashboard": "Name Your Dashboard",
+    "nameDashboardDesc": "Personalize your command centre.",
+    "dashboardName": "Dashboard Name",
+    "chooseTheme": "Choose a Theme",
+    "chooseThemeDesc": "Pick the look that suits you. This applies live.",
+    "accentColor": "Accent Color",
+    "accentColorDesc": "Personalize with your favorite color.",
+    "voiceInput": "Voice Input",
+    "voiceInputDesc": "Talk to your agents using your system's built-in dictation. No microphone setup needed in the browser.",
+    "macosDictation": "macOS Dictation",
+    "recommended": "Recommended",
+    "dictationSteps": {
+      "step1": "Open System Settings > Keyboard",
+      "step2": "Turn on Dictation",
+      "step3": "Click any chat input, press Fn Fn (double-tap), and start talking"
+    },
+    "voiceNote": "Your voice is converted to text by macOS, then sent as a regular message. Agents respond just like they would to typed text. Works in any input field across the app.",
+    "allSet": "You're All Set",
+    "allSetDesc": "Here's what you can do.",
+    "featureCards": {
+      "agentMap": {
+        "name": "Agent Map",
+        "desc": "Visual org chart of all your AI agents"
+      },
+      "chat": {
+        "name": "Chat",
+        "desc": "Direct conversations with any agent"
+      },
+      "kanban": {
+        "name": "Kanban",
+        "desc": "Task board for agent work management"
+      },
+      "crons": {
+        "name": "Crons",
+        "desc": "Scheduled jobs with status monitoring"
+      },
+      "memory": {
+        "name": "Memory",
+        "desc": "Shared context and knowledge files"
+      }
+    },
+    "buttons": {
+      "begin": "Begin",
+      "next": "Next",
+      "back": "Back",
+      "getStarted": "Get Started"
+    }
   }
 }
